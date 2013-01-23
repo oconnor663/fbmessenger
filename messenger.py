@@ -3,17 +3,27 @@
 import sys
 import signal
 import IPython
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from PyQt4.QtWebKit import *
+from PyQt4 import QtCore
+from PyQt4 import QtGui
+from PyQt4 import QtWebKit
+
+class External(QtCore.QObject):
+
+  @QtCore.pyqtSlot(str, str, str, str)
+  def postWebRequest(self, url, callback, method, postData):
+    print("postWebRequest({0}, {1}, {2}, {3})".format(
+        url, callback, method, postData))
 
 def main():
-  app = QApplication(sys.argv)
+  app = QtGui.QApplication(sys.argv)
 
-  web = QWebView()
+  web = QtWebKit.QWebView()
+  web.page().mainFrame().addToJavaScriptWindowObject(
+      "external", External())
   web.page().settings().setAttribute(
-      QWebSettings.DeveloperExtrasEnabled, True)
-  web.load(QUrl("https://www.facebook.com/desktop/client"))
+      QtWebKit.QWebSettings.DeveloperExtrasEnabled, True)
+  web.load(QtCore.QUrl(
+    "http://www.facebook.com/desktop/client"))
   web.resize(200,600)
   web.show()
 
