@@ -21,6 +21,8 @@ def async_request(url, callback, method, data):
   if method.upper() == "GET":
     reply = _manager.get(request)
   elif method.upper() == "POST":
+    request.setHeader(QtNetwork.QNetworkRequest.ContentTypeHeader,
+                      "x-www-form-urlencoded")
     reply = _manager.post(request, data)
   else:
     raise ValueError("Method must be GET or POST")

@@ -1,3 +1,4 @@
+import json
 from PyQt4 import QtCore
 from PyQt4 import QtWebKit
 
@@ -15,8 +16,10 @@ class BrowserWindow:
     self.web.resize(200, 600)
 
   def callJSFunction(self, name, *args):
-    self.web.page().mainFrame().evaluateJavaScript(
-        "document.body.innerHTML='foo'")
+    name_str = json.dumps(name)
+    args_str = ",".join(json.dumps(arg) for arg in args)
+    script = "window[{0}]({1})".format(name_str, args_str)
+    self.web.page().mainFrame().evaluateJavaScript(script)
 
   def show(self):
     self.web.show()
