@@ -2,6 +2,7 @@ from PyQt4 import QtCore
 
 import network
 import settings
+import browser
 
 class External(QtCore.QObject):
 
@@ -35,7 +36,7 @@ class External(QtCore.QObject):
   @QtCore.pyqtSlot(result=str)
   def getAccessToken(self):
     print("getAccessToken()")
-    token = settings.get_access_token()
+    token = settings.get_setting("AccessToken")
     print("returning '{0}'".format(token))
     return token
 
@@ -74,8 +75,9 @@ class External(QtCore.QObject):
   @QtCore.pyqtSlot(result=bool)
   def hasAccessToken(self):
     print("hasAccessToken()")
-    print("returning False")
-    return False
+    ret = settings.get_setting("AccessToken") != ""
+    print("returning " + str(ret))
+    return ret
 
   @QtCore.pyqtSlot()
   def heartBeat(self):
@@ -84,6 +86,9 @@ class External(QtCore.QObject):
   @QtCore.pyqtSlot()
   def invalidateAccessToken(self):
     print("invalidateAccessToken()")
+    settings.set_setting("AccessToken", "")
+    settings.set_setting("UserId", "")
+    browser.BrowserWindow.refresh_all()
 
   @QtCore.pyqtSlot(result=bool)
   def isIdle(self):
@@ -143,10 +148,10 @@ class External(QtCore.QObject):
   @QtCore.pyqtSlot(str, str)
   def setAccessToken(self, uid, token):
     print("setAccessToken({0}, {1})".format(uid, token))
-    old_token = settings.get_access_token()
-    if token != old_token:
-      settings.set_access_token(uid, token)
-      self._browserWindow.refresh()
+    if token != settings.get_setting("AccessToken"):
+      settings.set_setting("AccessToken", token)
+      settings.set_setting("UserId", uid)
+      browser.BrowserWindow.refresh_all()
 
   @QtCore.pyqtSlot(str)
   def setArbiterInformCallback(self, callback):

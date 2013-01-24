@@ -7,7 +7,15 @@ import settings
 
 class BrowserWindow:
 
+  _instances = []
+
+  @staticmethod
+  def refresh_all():
+    for browser in BrowserWindow._instances:
+      browser.refresh()
+
   def __init__(self, startUrl):
+    self._instances.append(self)
     self._startUrl = startUrl
     self._web = QtWebKit.QWebView()
     self.external = External(self)
@@ -34,8 +42,9 @@ class BrowserWindow:
 
   def refresh(self):
     url = self._startUrl
-    if settings.has_access_token():
-      url += "?access_token=" + settings.get_access_token()
+    access_token = settings.get_setting("AccessToken")
+    if access_token != "":
+      url += "?access_token=" + access_token
     self._web.load(QtCore.QUrl(url))
 
   def show(self):

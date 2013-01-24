@@ -1,21 +1,15 @@
+import os
+from os import path
+import json
+
 _settings = {}
 _values = {}
-_access_token = None
-_uid = None
-
-def set_access_token(uid, token):
-  global _access_token, _uid
-  _access_token = token
-  _uid = uid
-
-def get_access_token():
-  return _access_token
-
-def has_access_token():
-  return _access_token != None
+_settings_dir = path.expanduser("~/.fbmessenger")
+_settings_file = path.join(_settings_dir, "settings.json")
 
 def set_setting(key, val):
   _settings[key] = val
+  save()
 
 def get_setting(key):
   return _settings.get(key, "")
@@ -25,3 +19,15 @@ def set_value(key, val):
 
 def get_value(key):
   return _values.get(key, "")
+
+def save():
+  if not path.exists(_settings_dir):
+    os.mkdir(_settings_dir)
+  with open(_settings_file, "w") as f:
+    json.dump(_settings, f, indent=2, sort_keys=True)
+
+def load():
+  global _settings
+  if path.exists(_settings_file):
+    with open(_settings_file) as f:
+      _settings = json.load(f)
