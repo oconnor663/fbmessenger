@@ -12,7 +12,11 @@ def main():
 
   app = QtGui.QApplication(sys.argv)
 
-  main_window = BrowserWindow("http://www.facebook.com/desktop/client/")
+  base_url = "http://www.facebook.com"
+  if (settings.get_setting("BaseUrl")):
+    base_url = settings.get_setting("BaseUrl")
+
+  main_window = BrowserWindow(base_url + "/desktop/client/")
   main_window.show()
 
   # enable quitting with ctrl-c

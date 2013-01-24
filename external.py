@@ -12,8 +12,7 @@ class External(QtCore.QObject):
 
   @QtCore.pyqtSlot(str, str)
   def arbiterInformSerialized(self, name, payload):
-    print("arbiterInformSerialized({0}, {1})".format(
-        name, payload))
+    print("arbiterInformSerialized({0}, ...)".format(name))
 
   @QtCore.pyqtSlot()
   def captureMouseWheel(self):
@@ -156,6 +155,7 @@ class External(QtCore.QObject):
   @QtCore.pyqtSlot(str)
   def setArbiterInformCallback(self, callback):
     print("setArbiterInformCallback({0})".format(callback))
+    settings.set_setting("ArbiterInformCallback", callback)
 
   @QtCore.pyqtSlot(int)
   def setIcon(self, icon_id):

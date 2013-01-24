@@ -1,12 +1,12 @@
 import json
 from PyQt4 import QtCore
 from PyQt4 import QtWebKit
+from PyQt4 import QtNetwork
 
 from external import External
 import settings
 
 class BrowserWindow:
-
   _instances = []
 
   @staticmethod
@@ -21,6 +21,8 @@ class BrowserWindow:
     self.external = External(self)
     frame = self._web.page().mainFrame()
     frame.javaScriptWindowObjectCleared.connect(self._cleared_callback)
+    manager = self._web.page().networkAccessManager()
+    manager.setCookieJar(SettingsBasedCookieJar())
     settings = self._web.page().settings()
     settings.setAttribute(
         QtWebKit.QWebSettings.DeveloperExtrasEnabled, True)
@@ -49,3 +51,25 @@ class BrowserWindow:
 
   def show(self):
     self._web.show()
+
+
+class SettingsBasedCookieJar(QtNetwork.QNetworkCookieJar):
+  def __init__(self):
+    QtNetwork.QNetworkCookieJar.__init__(self)
+    self._cookies = settings.get_setting("CookieJar", {})
+
+  def setCookiesFromUrl(self, cookieList, url):
+    cookiesForHost = self._cookies.get(url.host(), {})
+    for cookie in cookieList:
+      name = bytes(cookie.name()).decode('utf-8')
+      value = bytes(cookie.value()).decode('utf-8')
+      cookiesForHost[name] = value
+    self._cookies[url.host()] = cookiesForHost
+    settings.set_setting("CookieJar", self._cookies)
+    return True
+
+  def cookiesForUrl(self, url):
+    cookieList = []
+    for (name, value) in self._cookies.get(url.host(), {}).items():
+      cookieList.append(QtNetwork.QNetworkCookie(name, value))
+    return cookieList
