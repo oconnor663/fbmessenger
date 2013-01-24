@@ -12,9 +12,7 @@ def _finished_handler(networkReply):
     del _callbacks[networkReply]
 
 _manager = QtNetwork.QNetworkAccessManager()
-_manager.connect(
-    _manager, QtCore.SIGNAL("finished(QNetworkReply *)"),
-    _finished_handler)
+_manager.finished.connect(_finished_handler)
 
 def async_request(url, callback, method, data):
   request = QtNetwork.QNetworkRequest(QtCore.QUrl(url))
