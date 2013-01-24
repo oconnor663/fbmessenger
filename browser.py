@@ -21,5 +21,8 @@ class BrowserWindow:
     script = "window[{0}]({1})".format(name_str, args_str)
     self.web.page().mainFrame().evaluateJavaScript(script)
 
+  def refresh(self):
+    self.web.reload()
+
   def show(self):
     self.web.show()

@@ -1,6 +1,7 @@
 from PyQt4 import QtCore
 
 import network
+import settings
 
 class External(QtCore.QObject):
 
@@ -46,8 +47,9 @@ class External(QtCore.QObject):
   @QtCore.pyqtSlot(str, result=str)
   def getSetting(self, key):
     print("getSetting({0})".format(key))
-    print("returning ''")
-    return ''
+    val = settings.get_setting(key)
+    print("returning '{0}'".format(val))
+    return val
 
   @QtCore.pyqtSlot(result=str)
   def getStateBlob(self):
@@ -58,8 +60,9 @@ class External(QtCore.QObject):
   @QtCore.pyqtSlot(str, result=str)
   def getValue(self, key):
     print("getValue({0})".format(key))
-    print("returning ''")
-    return ''
+    val = settings.get_value(key)
+    print("returning '{0}'".format(val))
+    return val
 
   @QtCore.pyqtSlot(result=str)
   def getVersion(self):
@@ -138,6 +141,8 @@ class External(QtCore.QObject):
   @QtCore.pyqtSlot(str, str)
   def setAccessToken(self, uid, token):
     print("setAccessToken({0}, {1})".format(uid, token))
+    settings.set_access_token(uid, token)
+    self.browserWindow.refresh()
 
   @QtCore.pyqtSlot(str)
   def setArbiterInformCallback(self, callback):
@@ -150,10 +155,12 @@ class External(QtCore.QObject):
   @QtCore.pyqtSlot(str, str)
   def setSetting(self, key, value):
     print("setSetting({0}, {1})".format(key, value))
+    settings.set_setting(key, value)
 
   @QtCore.pyqtSlot(str, str)
   def setValue(self, key, value):
     print("setValue({0}, {1})".format(key, value))
+    settings.set_value(key, value)
 
   @QtCore.pyqtSlot()
   def showChatDevTools(self):
