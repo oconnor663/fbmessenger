@@ -7,7 +7,7 @@ class External(QtCore.QObject):
 
   def __init__(self, browserWindow):
     QtCore.QObject.__init__(self)
-    self.browserWindow = browserWindow
+    self._browserWindow = browserWindow
 
   @QtCore.pyqtSlot(str, str)
   def arbiterInformSerialized(self, name, payload):
@@ -35,8 +35,9 @@ class External(QtCore.QObject):
   @QtCore.pyqtSlot(result=str)
   def getAccessToken(self):
     print("getAccessToken()")
-    print("returning ''")
-    return ''
+    token = settings.get_access_token()
+    print("returning '{0}'".format(token))
+    return token
 
   @QtCore.pyqtSlot(str, result=bool)
   def getCapability(self, capabilityName):
@@ -121,13 +122,14 @@ class External(QtCore.QObject):
   @QtCore.pyqtSlot(str)
   def navigateWindowToUrl(self, url):
     print("navigateWindowToUrl({0})".format(url))
+    self._browserWindow.navigate(url)
 
   @QtCore.pyqtSlot(str, str, str, str)
   def postWebRequest(self, url, callback, method, postData):
     print("postWebRequest({0}, {1}, {2}, {3})".format(
         url, callback, method, postData))
     def _callback(reply):
-      self.browserWindow.callJSFunction(callback, reply)
+      self._browserWindow.callJSFunction(callback, reply)
     network.async_request(url, _callback, method, postData)
 
   @QtCore.pyqtSlot()
@@ -141,8 +143,10 @@ class External(QtCore.QObject):
   @QtCore.pyqtSlot(str, str)
   def setAccessToken(self, uid, token):
     print("setAccessToken({0}, {1})".format(uid, token))
-    settings.set_access_token(uid, token)
-    self.browserWindow.refresh()
+    old_token = settings.get_access_token()
+    if token != old_token:
+      settings.set_access_token(uid, token)
+      self._browserWindow.refresh()
 
   @QtCore.pyqtSlot(str)
   def setArbiterInformCallback(self, callback):

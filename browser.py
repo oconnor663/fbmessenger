@@ -3,10 +3,12 @@ from PyQt4 import QtCore
 from PyQt4 import QtWebKit
 
 from external import External
+import settings
 
 class BrowserWindow:
 
   def __init__(self, startUrl):
+    self._startUrl = startUrl
     self._web = QtWebKit.QWebView()
     self.external = External(self)
     frame = self._web.page().mainFrame()
@@ -14,8 +16,8 @@ class BrowserWindow:
     settings = self._web.page().settings()
     settings.setAttribute(
         QtWebKit.QWebSettings.DeveloperExtrasEnabled, True)
-    self._web.load(QtCore.QUrl(startUrl))
     self._web.resize(200, 600)
+    self.refresh()
 
   def callJSFunction(self, name, *args):
     name_str = json.dumps(name)
@@ -27,8 +29,14 @@ class BrowserWindow:
     frame = self._web.page().mainFrame()
     frame.addToJavaScriptWindowObject("external", External(self))
 
+  def navigate(self, url):
+    self._web.load(QtCore.QUrl(url))
+
   def refresh(self):
-    self._web.reload()
+    url = self._startUrl
+    if settings.has_access_token():
+      url += "?access_token=" + settings.get_access_token()
+    self._web.load(QtCore.QUrl(url))
 
   def show(self):
     self._web.show()

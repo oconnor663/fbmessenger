@@ -2,7 +2,6 @@
 
 import sys
 import signal
-import IPython
 from PyQt4 import QtGui
 
 from browser import BrowserWindow
