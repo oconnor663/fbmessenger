@@ -1,6 +1,12 @@
 from PyQt4 import QtCore
 
+import network
+
 class External(QtCore.QObject):
+
+  def __init__(self, browserWindow):
+    QtCore.QObject.__init__(self)
+    self.browserWindow = browserWindow
 
   @QtCore.pyqtSlot(str, str)
   def arbiterInformSerialized(self, name, payload):
@@ -117,6 +123,9 @@ class External(QtCore.QObject):
   def postWebRequest(self, url, callback, method, postData):
     print("postWebRequest({0}, {1}, {2}, {3})".format(
         url, callback, method, postData))
+    def _callback(reply):
+      self.browserWindow.callJSFunction(callback, reply)
+    network.async_request(url, _callback, method, postData)
 
   @QtCore.pyqtSlot()
   def recycle(self):

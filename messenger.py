@@ -3,24 +3,15 @@
 import sys
 import signal
 import IPython
-from PyQt4 import QtCore
 from PyQt4 import QtGui
-from PyQt4 import QtWebKit
 
-from external import External
+from browser import BrowserWindow
 
 def main():
   app = QtGui.QApplication(sys.argv)
 
-  web = QtWebKit.QWebView()
-  web.page().mainFrame().addToJavaScriptWindowObject(
-      "external", External())
-  web.page().settings().setAttribute(
-      QtWebKit.QWebSettings.DeveloperExtrasEnabled, True)
-  web.load(QtCore.QUrl(
-    "http://www.facebook.com/desktop/client"))
-  web.resize(200, 600)
-  web.show()
+  main_window = BrowserWindow("http://www.facebook.com/desktop/client")
+  main_window.show()
 
   # enable quitting with ctrl-c
   signal.signal(signal.SIGINT, signal.SIG_DFL)
