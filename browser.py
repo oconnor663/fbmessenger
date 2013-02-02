@@ -29,7 +29,7 @@ class BrowserWindow:
     self._web.resize(200, 600)
     self.refresh()
 
-  def callJSFunction(self, name, *args):
+  def call_js_function(self, name, *args):
     name_str = json.dumps(name)
     args_str = ",".join(json.dumps(arg) for arg in args)
     script = "window[{0}]({1})".format(name_str, args_str)

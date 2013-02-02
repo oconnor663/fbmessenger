@@ -1,5 +1,6 @@
 from PyQt4 import QtCore
 import inspect
+import webbrowser
 
 import network
 import settings
@@ -38,38 +39,46 @@ def _truncate(s):
     return s
 
 class External(QtCore.QObject):
+  _instances = []
 
   def __init__(self, browserWindow):
     QtCore.QObject.__init__(self)
-    self._browserWindow = browserWindow
+    self._browserwindow = browserWindow
+    self._arbiter_name = None
+    self._instances.append(self)
 
-  @fake_external(str, str)
-  def arbiterInformSerialized(self, name, payload):
-    pass
+  @external(str, str)
+  def arbiterInformSerialized(self, eventname, payload):
+    for externalobj in self._instances:
+      if externalobj._arbiter_name:
+        externalobj._browserwindow.call_js_function(
+            externalobj._arbiter_name, eventname, payload)
 
   @fake_external()
   def captureMouseWheel(self):
     pass
 
-  @fake_external()
+  @external()
   def clearHeartBeat(self):
+    # no-op
     pass
 
   @fake_external(str, str, result=int)
   def asyncConfirm(self, message, caption):
     return 0
 
-  @fake_external(str)
+  @external(str)
   def debugLog(self, text):
-    pass
+    print(text)
 
   @external(result=str)
   def getAccessToken(self):
     token = settings.get_setting("AccessToken")
     return token
 
-  @fake_external(str, result=bool)
+  @external(str, result=bool)
   def getCapability(self, capabilityName):
+    # TODO(jacko): implement ticker flyouts etc.
     return False
 
   @external(str, result=str)
@@ -95,8 +104,9 @@ class External(QtCore.QObject):
     ret = settings.get_setting("AccessToken") != ""
     return ret
 
-  @fake_external()
+  @external()
   def heartBeat(self):
+    # no-op
     pass
 
   @external()
@@ -129,18 +139,18 @@ class External(QtCore.QObject):
   def mqttSubscribe(self, topic):
     pass
 
-  @fake_external(str)
+  @external(str)
   def navigateBrowserToUrl(self, url):
-    pass
+    webbrowser.open(url)
 
   @external(str)
   def navigateWindowToUrl(self, url):
-    self._browserWindow.navigate(url)
+    self._browserwindow.navigate(url)
 
   @external(str, str, str, str)
   def postWebRequest(self, url, callback, method, postData):
     def _callback(reply):
-      self._browserWindow.callJSFunction(callback, reply)
+      self._browserwindow.call_js_function(callback, reply)
     network.AsyncRequest(url, _callback,
         postData if method.upper() == "POST" else None)
 
@@ -162,10 +172,11 @@ class External(QtCore.QObject):
 
   @external(str)
   def setArbiterInformCallback(self, callback):
-    settings.set_setting("ArbiterInformCallback", callback)
+    self._arbiter_name = callback
 
-  @fake_external(int)
+  @external(int)
   def setIcon(self, icon_id):
+    # TODO(jacko) do something with this
     pass
 
   @external(str, str)
