@@ -148,11 +148,11 @@ class External(QtCore.QObject):
     self._browserwindow.navigate(url)
 
   @external(str, str, str, str)
-  def postWebRequest(self, url, callback, method, postData):
+  def postWebRequest(self, url, callback, method, poststr):
     def _callback(reply):
       self._browserwindow.call_js_function(callback, reply)
     network.AsyncRequest(url, _callback,
-        postData if method.upper() == "POST" else None)
+        poststr if method.upper() == "POST" else None)
 
 
   @fake_external()

@@ -11,18 +11,18 @@ class AsyncRequest(QtCore.QThread):
   # or the ref counter will delete us.
   _instances = set()
 
-  def __init__(self, url, callback=None, data=None):
+  def __init__(self, url, callback=None, poststr=None):
     QtCore.QThread.__init__(self)
     self._instances.add(self)
     self._url = url
-    self._postdata = data
+    self._postbytes = poststr.encode("utf-8") if poststr else None
     self._response_received.connect(callback)
     self.finished.connect(self._finish)
     self.start()
 
   def run(self):
     token_url = _add_access_token(self._url)
-    response = urllib.request.urlopen(token_url, self._postdata)
+    response = urllib.request.urlopen(token_url, self._postbytes)
     response_text = response.read().decode("utf-8")
     self._response_received.emit(response_text)
 
