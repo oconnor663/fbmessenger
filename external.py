@@ -1,6 +1,7 @@
 from PyQt4 import QtCore
 import inspect
 import webbrowser
+import json
 
 import network
 import settings
@@ -49,10 +50,17 @@ class External(QtCore.QObject):
 
   @external(str, str)
   def arbiterInformSerialized(self, eventname, payload):
+    # The contract here is that JS will serialize a value, and we will
+    # deserialize it before we pass it back in. (Recall that passing it
+    # back in entails serializing into json but then interpreting that
+    # string as a literal, no net change in serialization level.) This is
+    # because in some implementations, JS isn't capable of passing out
+    # arbitrary objects.
+    deserialized_payload = json.loads(payload)
     for externalobj in self._instances:
       if externalobj._arbiter_name:
         externalobj._browserwindow.call_js_function(
-            externalobj._arbiter_name, eventname, payload)
+            externalobj._arbiter_name, eventname, deserialized_payload)
 
   @fake_external()
   def captureMouseWheel(self):

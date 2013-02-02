@@ -13,6 +13,7 @@ def main():
   base_url = "http://www.facebook.com"
   base_url_override = settings.get_setting("BaseUrl")
   if (base_url_override):
+    print("BaseUrl:", base_url_override)
     base_url = base_url_override
 
   main_window = BrowserWindow(base_url + "/desktop/client/")
