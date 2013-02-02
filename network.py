@@ -1,42 +1,40 @@
 from PyQt4 import QtNetwork
 from PyQt4 import QtCore
-import urllib.parse as U
+import urllib.request
+import urllib.parse as P
 
 import settings
 
-_callbacks = {}
+class AsyncRequest(QtCore.QThread):
+  _response_received = QtCore.pyqtSignal(str)
+  # We have to keep references to each instance,
+  # or the ref counter will delete us.
+  _instances = set()
 
-def async_request(url, callback, method, data):
-  url_plus_token = _add_access_token(url)
-  request = QtNetwork.QNetworkRequest(QtCore.QUrl(url_plus_token))
-  if method.upper() == "GET":
-    reply = _manager.get(request)
-  elif method.upper() == "POST":
-    request.setHeader(QtNetwork.QNetworkRequest.ContentTypeHeader,
-                      "x-www-form-urlencoded")
-    reply = _manager.post(request, data)
-  else:
-    raise ValueError("Method must be GET or POST")
+  def __init__(self, url, callback=None, data=None):
+    QtCore.QThread.__init__(self)
+    self._instances.add(self)
+    self._url = url
+    self._postdata = data
+    self._response_received.connect(callback)
+    self.finished.connect(self._finish)
+    self.start()
 
-  _callbacks[reply] = callback
+  def run(self):
+    token_url = _add_access_token(self._url)
+    response = urllib.request.urlopen(token_url, self._postdata)
+    response_text = response.read().decode("utf-8")
+    self._response_received.emit(response_text)
 
-def _finished_handler(networkReply):
-  replyBytes = bytes(networkReply.readAll())
-  replyStr = replyBytes.decode('utf-8')
-  try:
-    _callbacks[networkReply](replyStr)
-  finally:
-    del _callbacks[networkReply]
-
-_manager = QtNetwork.QNetworkAccessManager()
-_manager.finished.connect(_finished_handler)
+  def _finish(self):
+    self._instances.remove(self)
 
 def _add_access_token(url):
   if not settings.get_setting("AccessToken"):
     return url
 
-  scheme, netloc, path, query_string, fragment = U.urlsplit(url)
-  query_params = U.parse_qsl(query_string)
+  scheme, netloc, path, query_string, fragment = P.urlsplit(url)
+  query_params = P.parse_qsl(query_string)
   query_params.append(("access_token", settings.get_setting("AccessToken")))
-  new_query_string = U.urlencode(query_params)
-  return U.urlunsplit((scheme, netloc, path, new_query_string, fragment))
+  new_query_string = P.urlencode(query_params)
+  return P.urlunsplit((scheme, netloc, path, new_query_string, fragment))
