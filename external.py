@@ -1,8 +1,41 @@
 from PyQt4 import QtCore
+import inspect
 
 import network
 import settings
 import browser
+
+def external(*types, **results):
+  qt_decorator = QtCore.pyqtSlot(*types, **results)
+  def decorator(function):
+    def wrapper(self, *args):
+      # Put special stuff here
+      return function(self, *args)
+    wrapper.__name__ = function.__name__
+    return qt_decorator(wrapper)
+  return decorator
+
+def fake_external(*types, **results):
+  qt_decorator = QtCore.pyqtSlot(*types, **results)
+  def decorator(function):
+    def wrapper(self, *args):
+      # Put special stuff here
+      arg_names = inspect.getargspec(function)[0][1:]
+      frame = inspect.currentframe()
+      arg_values = inspect.getargvalues(frame)[3]['args']
+      args_str = ", ".join(a + "=" + _truncate(repr(b)) for (a, b) in zip(arg_names, arg_values))
+      print("FAKE {0}({1})".format(function.__name__, args_str))
+      return function(self, *args)
+    wrapper.__name__ = function.__name__
+    return qt_decorator(wrapper)
+  return decorator
+
+def _truncate(s):
+  maxlen = 50
+  if len(s) > maxlen:
+    return s[:maxlen-3] + '...'
+  else:
+    return s
 
 class External(QtCore.QObject):
 
@@ -10,203 +43,175 @@ class External(QtCore.QObject):
     QtCore.QObject.__init__(self)
     self._browserWindow = browserWindow
 
-  @QtCore.pyqtSlot(str, str)
+  @fake_external(str, str)
   def arbiterInformSerialized(self, name, payload):
-    print("arbiterInformSerialized({0}, ...)".format(name))
+    pass
 
-  @QtCore.pyqtSlot()
+  @fake_external()
   def captureMouseWheel(self):
-    print("captureMouseWheel")
+    pass
 
-  @QtCore.pyqtSlot()
+  @fake_external()
   def clearHeartBeat(self):
-    print("clearHeartBeat")
+    pass
 
-  @QtCore.pyqtSlot(str, str, result=int)
+  @fake_external(str, str, result=int)
   def asyncConfirm(self, message, caption):
-    print("asyncConfirm({0}, {1})".format(message, caption))
-    print("returning 0")
     return 0
 
-  @QtCore.pyqtSlot(str)
+  @fake_external(str)
   def debugLog(self, text):
-    print("debugLog({0})".format(text))
+    pass
 
-  @QtCore.pyqtSlot(result=str)
+  @external(result=str)
   def getAccessToken(self):
-    print("getAccessToken()")
     token = settings.get_setting("AccessToken")
-    print("returning '{0}'".format(token))
     return token
 
-  @QtCore.pyqtSlot(str, result=bool)
+  @fake_external(str, result=bool)
   def getCapability(self, capabilityName):
-    print("getCapability({0})".format(capabilityName))
-    print("returning False")
     return False
 
-  @QtCore.pyqtSlot(str, result=str)
+  @external(str, result=str)
   def getSetting(self, key):
-    print("getSetting({0})".format(key))
     val = settings.get_setting(key)
-    print("returning '{0}'".format(val))
     return val
 
-  @QtCore.pyqtSlot(result=str)
+  @fake_external(result=str)
   def getStateBlob(self):
-    print("getStateBlob()")
-    print("returning ''")
     return ''
 
-  @QtCore.pyqtSlot(str, result=str)
+  @external(str, result=str)
   def getValue(self, key):
-    print("getValue({0})".format(key))
     val = settings.get_value(key)
-    print("returning '{0}'".format(val))
     return val
 
-  @QtCore.pyqtSlot(result=str)
+  @fake_external(result=str)
   def getVersion(self):
-    print("getVersion")
-    print("returning ''")
     return ''
 
-  @QtCore.pyqtSlot(result=bool)
+  @external(result=bool)
   def hasAccessToken(self):
-    print("hasAccessToken()")
     ret = settings.get_setting("AccessToken") != ""
-    print("returning " + str(ret))
     return ret
 
-  @QtCore.pyqtSlot()
+  @fake_external()
   def heartBeat(self):
-    print("heartBeat()")
+    pass
 
-  @QtCore.pyqtSlot()
+  @external()
   def invalidateAccessToken(self):
-    print("invalidateAccessToken()")
     settings.set_setting("AccessToken", "")
     settings.set_setting("UserId", "")
     browser.BrowserWindow.refresh_all()
 
-  @QtCore.pyqtSlot(result=bool)
+  @fake_external(result=bool)
   def isIdle(self):
-    print("isIdle()")
-    print("returning False")
     return False
 
-  @QtCore.pyqtSlot(result=bool)
+  @fake_external(result=bool)
   def isMqttConnected(self):
-    print("isMqttConnected()")
-    print("returning False")
     return False
 
-  @QtCore.pyqtSlot(result=bool)
+  @fake_external(result=bool)
   def isToastVisible(self):
-    print("isToastVisible()")
-    print("returning False")
     return False
 
-  @QtCore.pyqtSlot(str, str)
+  @fake_external(str, str)
   def logEvent(self, name, payload):
-    print("logEvent({0}, {1})".format(name, payload))
+    pass
 
-  @QtCore.pyqtSlot(str, str, str)
+  @fake_external(str, str, str)
   def logEvent2(self, category, name, payload):
-    print("logEvent2({0}, {1}, {2})".format(category, name, payload))
+    pass
 
-  @QtCore.pyqtSlot(str)
+  @fake_external(str)
   def mqttSubscribe(self, topic):
-    print("mqttSubscribe({0})".format(topic))
+    pass
 
-  @QtCore.pyqtSlot(str)
+  @fake_external(str)
   def navigateBrowserToUrl(self, url):
-    print("navigateBrowserToUrl({0})".format(url))
+    pass
 
-  @QtCore.pyqtSlot(str)
+  @external(str)
   def navigateWindowToUrl(self, url):
-    print("navigateWindowToUrl({0})".format(url))
     self._browserWindow.navigate(url)
 
-  @QtCore.pyqtSlot(str, str, str, str)
+  @external(str, str, str, str)
   def postWebRequest(self, url, callback, method, postData):
-    print("postWebRequest({0}, {1}, {2}, {3})".format(
-        url, callback, method, postData))
     def _callback(reply):
       self._browserWindow.callJSFunction(callback, reply)
-    network.async_request(url, _callback, method, postData)
+    network.AsyncRequest(url, _callback,
+        postData if method.upper() == "POST" else None)
 
-  @QtCore.pyqtSlot()
+
+  @fake_external()
   def recycle(self):
-    print("recycle()")
+    pass
 
-  @QtCore.pyqtSlot()
+  @fake_external()
   def releaseMouseWheel(self):
-    print("releaseMouseWheel()")
+    pass
 
-  @QtCore.pyqtSlot(str, str)
+  @external(str, str)
   def setAccessToken(self, uid, token):
-    print("setAccessToken({0}, {1})".format(uid, token))
     if token != settings.get_setting("AccessToken"):
       settings.set_setting("AccessToken", token)
       settings.set_setting("UserId", uid)
       browser.BrowserWindow.refresh_all()
 
-  @QtCore.pyqtSlot(str)
+  @external(str)
   def setArbiterInformCallback(self, callback):
-    print("setArbiterInformCallback({0})".format(callback))
     settings.set_setting("ArbiterInformCallback", callback)
 
-  @QtCore.pyqtSlot(int)
+  @fake_external(int)
   def setIcon(self, icon_id):
-    print("setIcon({0})".format(icon_id))
+    pass
 
-  @QtCore.pyqtSlot(str, str)
+  @external(str, str)
   def setSetting(self, key, value):
-    print("setSetting({0}, {1})".format(key, value))
     settings.set_setting(key, value)
 
-  @QtCore.pyqtSlot(str, str)
+  @external(str, str)
   def setValue(self, key, value):
-    print("setValue({0}, {1})".format(key, value))
     settings.set_value(key, value)
 
-  @QtCore.pyqtSlot()
+  @fake_external()
   def showChatDevTools(self):
-    print("showChatDevTools()")
+    pass
 
-  @QtCore.pyqtSlot()
+  @fake_external()
   def showDevTools(self):
-    print("showDevTools()")
+    pass
 
-  @QtCore.pyqtSlot()
+  @fake_external()
   def showSidebarDevTools(self):
-    print("showSidebarDevTools()")
+    pass
 
-  @QtCore.pyqtSlot()
+  @fake_external()
   def showToastDevTools(self):
-    print("showToastDevTools()")
+    pass
 
-  @QtCore.pyqtSlot()
+  @fake_external()
   def showFlyoutDevTools(self):
-    print("showFlyoutDevTools()")
+    pass
 
-  @QtCore.pyqtSlot()
+  @fake_external()
   def showDialogDevTools(self):
-    print("showDialogDevTools()")
+    pass
 
-  @QtCore.pyqtSlot(str, str)
+  @fake_external(str, str)
   def showTickerFlyout(self, url, storyYPos):
-    print("showTickerFlyout({0}, {1})".format(url, storyYPos))
+    pass
 
-  @QtCore.pyqtSlot()
+  @fake_external()
   def hideTickerFlyout(self):
-    print("hideTickerFlyout()")
+    pass
 
-  @QtCore.pyqtSlot()
+  @fake_external()
   def showDialog(self):
-    print("showDialog()")
+    pass
 
-  @QtCore.pyqtSlot()
+  @fake_external()
   def hideDialog(self):
-    print("hideDialog()")
+    pass
