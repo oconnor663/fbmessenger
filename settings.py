@@ -12,8 +12,8 @@ def get_setting(key, default=""):
 def set_value(key, val):
   _values[key] = val
 
-def get_value(key):
-  return _values.get(key, "")
+def get_value(key, default=""):
+  return _values.get(key, default)
 
 def _save_settings():
   if not path.exists(_settings_dir):

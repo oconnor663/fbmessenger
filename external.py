@@ -127,12 +127,14 @@ class External(QtCore.QObject):
   def isToastVisible(self):
     return False
 
-  @fake_external(str, str)
+  @external(str, str)
   def logEvent(self, name, payload):
+    # no-op
     pass
 
-  @fake_external(str, str, str)
+  @external(str, str, str)
   def logEvent2(self, category, name, payload):
+    # no-op
     pass
 
   @fake_external(str)

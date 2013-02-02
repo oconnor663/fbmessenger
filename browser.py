@@ -17,40 +17,51 @@ class BrowserWindow:
   def __init__(self, startUrl):
     self._instances.append(self)
     self._startUrl = startUrl
-    self._web = QtWebKit.QWebView()
+    self._webkit = QtWebKit.QWebView()
     self.external = External(self)
-    frame = self._web.page().mainFrame()
+    frame = self._webkit.page().mainFrame()
     frame.javaScriptWindowObjectCleared.connect(self._cleared_callback)
-    manager = self._web.page().networkAccessManager()
+    manager = self._webkit.page().networkAccessManager()
     manager.setCookieJar(SettingsBasedCookieJar())
-    settings = self._web.page().settings()
+    manager.sslErrors.connect(self._handle_ssl_error)
+    settings = self._webkit.page().settings()
     settings.setAttribute(
         QtWebKit.QWebSettings.DeveloperExtrasEnabled, True)
-    self._web.resize(200, 600)
+    self._webkit.resize(200, 600)
     self.refresh()
 
   def call_js_function(self, name, *args):
     name_str = json.dumps(name)
     args_str = ",".join(json.dumps(arg) for arg in args)
     script = "window[{0}]({1})".format(name_str, args_str)
-    self._web.page().mainFrame().evaluateJavaScript(script)
+    self._webkit.page().mainFrame().evaluateJavaScript(script)
 
   def _cleared_callback(self):
-    frame = self._web.page().mainFrame()
+    frame = self._webkit.page().mainFrame()
     frame.addToJavaScriptWindowObject("external", External(self))
 
+  def _handle_ssl_error(self, reply, errors):
+    # Ignore SSL errors when we've overridden the default URL
+    if settings.get_setting("BaseUrl"):
+      reply.ignoreSslErrors()
+      if not settings.get_value("AlreadyPrintedSslIgnore"):
+        settings.set_value("AlreadyPrintedSslIgnore", True)
+        print("Ignoring SSL errors.")
+    else:
+      print("SSL error!")
+
   def navigate(self, url):
-    self._web.load(QtCore.QUrl(url))
+    self._webkit.load(QtCore.QUrl(url))
 
   def refresh(self):
     url = self._startUrl
     access_token = settings.get_setting("AccessToken")
     if access_token != "":
       url += "?access_token=" + access_token
-    self._web.load(QtCore.QUrl(url))
+    self._webkit.load(QtCore.QUrl(url))
 
   def show(self):
-    self._web.show()
+    self._webkit.show()
 
 
 class SettingsBasedCookieJar(QtNetwork.QNetworkCookieJar):
