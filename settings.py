@@ -28,7 +28,8 @@ def _load_settings():
     with open(_settings_file) as f:
       try:
         _settings = json.load(f)
-      except:
+      except Exception as e:
+        print("Loading settings failed: ", e)
         _settings = {}
 
 _settings_dir = path.expanduser("~/.fbmessenger")
