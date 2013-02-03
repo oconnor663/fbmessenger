@@ -1,7 +1,14 @@
 from PyQt4 import QtNetwork
 from PyQt4 import QtCore
-import urllib.request
-import urllib.parse as P
+
+try:
+  # python3
+  from urllib.request import urlopen
+  from urllib.parse import urlsplit, parse_qsl, urlencode, urlunsplit
+except ImportError:
+  #python2
+  from urllib import urlopen, urlencode
+  from urlparse import urlsplit, parse_qsl, urlunsplit
 
 import settings
 
@@ -22,7 +29,7 @@ class AsyncRequest(QtCore.QThread):
 
   def run(self):
     token_url = _add_access_token(self._url)
-    response = urllib.request.urlopen(token_url, self._postbytes)
+    response = urlopen(token_url, self._postbytes)
     response_text = response.read().decode("utf-8")
     self._response_received.emit(response_text)
 
@@ -33,8 +40,8 @@ def _add_access_token(url):
   if not settings.get_setting("AccessToken"):
     return url
 
-  scheme, netloc, path, query_string, fragment = P.urlsplit(url)
-  query_params = P.parse_qsl(query_string)
+  scheme, netloc, path, query_string, fragment = urlsplit(url)
+  query_params = parse_qsl(query_string)
   query_params.append(("access_token", settings.get_setting("AccessToken")))
-  new_query_string = P.urlencode(query_params)
-  return P.urlunsplit((scheme, netloc, path, new_query_string, fragment))
+  new_query_string = urlencode(query_params)
+  return urlunsplit((scheme, netloc, path, new_query_string, fragment))
