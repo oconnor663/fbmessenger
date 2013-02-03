@@ -1,4 +1,5 @@
 import json
+from os import path
 from PyQt4 import QtCore
 from PyQt4 import QtWebKit
 from PyQt4 import QtNetwork
@@ -24,9 +25,13 @@ class BrowserWindow:
     manager = self._webkit.page().networkAccessManager()
     manager.setCookieJar(SettingsBasedCookieJar())
     manager.sslErrors.connect(self._handle_ssl_error)
-    settings = self._webkit.page().settings()
-    settings.setAttribute(
+    websettings = self._webkit.page().settings()
+    websettings.setAttribute(
         QtWebKit.QWebSettings.DeveloperExtrasEnabled, True)
+    websettings.setAttribute(
+        QtWebKit.QWebSettings.LocalStorageEnabled, True)
+    websettings.setLocalStoragePath(
+        path.join(settings.SETTINGS_DIR, "localstorage"))
     self._webkit.resize(200, 600)
     self.refresh()
 

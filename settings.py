@@ -16,8 +16,8 @@ def get_value(key, default=""):
   return _values.get(key, default)
 
 def _save_settings():
-  if not path.exists(_settings_dir):
-    os.mkdir(_settings_dir)
+  if not path.exists(SETTINGS_DIR):
+    os.mkdir(SETTINGS_DIR)
   with open(_settings_file, "w") as f:
     json.dump(_settings, f, indent=2, sort_keys=True,
               separators=(',', ': '))
@@ -32,8 +32,9 @@ def _load_settings():
         print("Loading settings failed: ", e)
         _settings = {}
 
-_settings_dir = path.expanduser("~/.fbmessenger")
-_settings_file = path.join(_settings_dir, "settings.json")
+SETTINGS_DIR = path.expanduser("~/.fbmessenger")
+
+_settings_file = path.join(SETTINGS_DIR, "settings.json")
 
 _values = {}
 _settings = {}
