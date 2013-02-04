@@ -43,7 +43,7 @@ class BrowserWindow:
 
   def _cleared_callback(self):
     frame = self._webkit.page().mainFrame()
-    frame.addToJavaScriptWindowObject("external", External(self))
+    frame.addToJavaScriptWindowObject("external", self.external)
 
   def _handle_ssl_error(self, reply, errors):
     # Ignore SSL errors when we've overridden the default URL
