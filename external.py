@@ -6,6 +6,7 @@ import json
 import network
 import settings
 import browser
+import mqtt
 
 def external(*types, **results):
   qt_decorator = QtCore.pyqtSlot(*types, **results)
@@ -39,6 +40,13 @@ def _truncate(s):
   else:
     return s
 
+def arbiter_inform_all(eventname, payload):
+  for externalobj in External._instances:
+    externalobj.arbiter_inform_local(eventname, payload)
+
+def arbiter_inform_mqtt(topic, payload):
+  arbiter_inform_all("FbDesktop.mqtt_" + topic, payload)
+
 class External(QtCore.QObject):
   _instances = []
 
@@ -57,10 +65,12 @@ class External(QtCore.QObject):
     # because in some implementations, JS isn't capable of passing out
     # arbitrary objects.
     deserialized_payload = json.loads(payload)
-    for externalobj in self._instances:
-      if externalobj._arbiter_name:
-        externalobj._browserwindow.call_js_function(
-            externalobj._arbiter_name, eventname, deserialized_payload)
+    arbiter_inform_all(eventname, deserialized_payload)
+
+  def arbiter_inform_local(self, eventname, payload):
+    if self._arbiter_name:
+      self._browserwindow.call_js_function(
+          self._arbiter_name, eventname, payload)
 
   @fake_external()
   def captureMouseWheel(self):
@@ -127,9 +137,9 @@ class External(QtCore.QObject):
   def isIdle(self):
     return False
 
-  @fake_external(result=bool)
+  @external(result=bool)
   def isMqttConnected(self):
-    return False
+    return mqtt.is_connected
 
   @fake_external(result=bool)
   def isToastVisible(self):
@@ -145,9 +155,9 @@ class External(QtCore.QObject):
     # no-op
     pass
 
-  @fake_external(str)
+  @external(str)
   def mqttSubscribe(self, topic):
-    pass
+    mqtt.subscribe(topic)
 
   @external(str)
   def navigateBrowserToUrl(self, url):
