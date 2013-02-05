@@ -1,7 +1,9 @@
-from PyQt4 import QtCore
 import mosquitto
 
 import settings
+import event
+
+MESSAGE_RECEIVED_EVENT = object()
 
 rc_map = ["success",
           "unacceptable protocol version",
@@ -13,7 +15,6 @@ rc_map = ["success",
 _subscriptions = []
 _client = None
 
-_callback_qobj = None
 is_connected = False
 
 def connect():
@@ -38,19 +39,8 @@ def subscribe(topic):
   if _client:
     _client.subscribe(topic, 0)
 
-# We don't want the callbacks running on the mqtt thread, so we create this
-# dummy object with a signal to marshall us onto the UI thread. If we add more
-# callbacks, they'll need similar marshalling.
-def register_message_callback(callback):
-  global _callback_qobj
-  if _callback_qobj:
-    raise RuntimeError("callback already registered")
-  class EventHolder(QtCore.QObject):
-    message_received = QtCore.pyqtSignal(str, str)
-  _callback_qobj = EventHolder()
-  _callback_qobj.message_received.connect(callback)
-
 def _on_connect(mosq, obj, rc):
+  global is_connected
   if rc == 0: # success
     is_connected = True
     print("MQTT connected successfully")
@@ -61,11 +51,11 @@ def _on_connect(mosq, obj, rc):
     print("MQTT connection failure:", rc_map[rc])
 
 def _on_disconnect(mosq, obj, rc):
+  global is_connected
   is_connected = False
   print("MQTT disconnected")
 
 def _on_message(mosq, obj, msg):
   topic = msg.topic
   payload = msg.payload.decode('utf-8')
-  if _callback_qobj:
-    _callback_qobj.message_received.emit(topic, payload)
+  event.inform(MESSAGE_RECEIVED_EVENT, topic, payload)

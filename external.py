@@ -7,6 +7,7 @@ import network
 import settings
 import browser
 import mqtt
+import event
 
 def external(*types, **results):
   qt_decorator = QtCore.pyqtSlot(*types, **results)
@@ -46,6 +47,8 @@ def arbiter_inform_all(eventname, payload):
 
 def arbiter_inform_mqtt(topic, payload):
   arbiter_inform_all("FbDesktop.mqtt_" + topic, payload)
+
+event.subscribe(mqtt.MESSAGE_RECEIVED_EVENT, arbiter_inform_mqtt)
 
 class External(QtCore.QObject):
   _instances = []
@@ -173,7 +176,6 @@ class External(QtCore.QObject):
       self._browserwindow.call_js_function(callback, reply)
     network.AsyncRequest(url, _callback,
         poststr if method.upper() == "POST" else None)
-
 
   @fake_external()
   def recycle(self):

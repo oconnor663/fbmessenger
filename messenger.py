@@ -19,7 +19,6 @@ import external
 def main():
   app = QtGui.QApplication(sys.argv)
 
-  mqtt.register_message_callback(external.arbiter_inform_mqtt)
   mqtt.connect()
 
   base_url = "http://www.facebook.com"
