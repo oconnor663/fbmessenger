@@ -11,29 +11,16 @@ import sys
 import signal
 from PyQt4 import QtGui
 
-from browser import BrowserWindow
 import settings
 import mqtt
 import external
+import windows
 
 def main():
   app = QtGui.QApplication(sys.argv)
 
   mqtt.init()
-
-  base_url = "http://www.facebook.com"
-  base_url_override = settings.get_setting("BaseUrl")
-  if (base_url_override):
-    print("BaseUrl:", base_url_override)
-    base_url = base_url_override
-
-  main_window = BrowserWindow(base_url + "/desktop/client/")
-  main_window.resize(212, 640)
-  main_window.show()
-
-  chat_window = BrowserWindow(base_url + "/desktop/client/chat.php")
-  chat_window.resize(420, 340)
-  chat_window.show()
+  windows.init()
 
   # enable quitting with ctrl-c
   signal.signal(signal.SIGINT, signal.SIG_DFL)

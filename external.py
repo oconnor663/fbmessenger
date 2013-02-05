@@ -8,6 +8,7 @@ import settings
 import browser
 import mqtt
 import event
+import windows
 
 def external(*types, **results):
   qt_decorator = QtCore.pyqtSlot(*types, **results)
@@ -266,7 +267,7 @@ class External(QtCore.QObject):
 
   @fake_external()
   def hideChatWindow(self):
-    pass
+    windows.chat_window.hide()
 
   @fake_external(result=bool)
   def isChatWindowActive(self):
@@ -285,5 +286,5 @@ class External(QtCore.QObject):
     pass
 
   @fake_external(bool)
-  def showChatWindow(self, bringToFront):
-    pass
+  def showChatWindow(self, bringtofront):
+    windows.chat_window.show(bringtofront)

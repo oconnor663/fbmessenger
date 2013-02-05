@@ -4,7 +4,7 @@ from PyQt4 import QtCore
 from PyQt4 import QtWebKit
 from PyQt4 import QtNetwork
 
-from external import External
+import external
 import settings
 import event
 
@@ -15,7 +15,7 @@ class BrowserWindow:
     self._instances.append(self)
     self._startUrl = startUrl
     self._webkit = QtWebKit.QWebView()
-    self.external = External(self)
+    self.external = external.External(self)
     frame = self._webkit.page().mainFrame()
     frame.javaScriptWindowObjectCleared.connect(self._cleared_callback)
     manager = self._webkit.page().networkAccessManager()
@@ -51,6 +51,9 @@ class BrowserWindow:
     else:
       print("SSL error!")
 
+  def hide(self):
+    self._webkit.hide()
+
   def navigate(self, url):
     self._webkit.load(QtCore.QUrl(url))
 
@@ -64,9 +67,10 @@ class BrowserWindow:
   def resize(self, width, height):
     self._webkit.resize(width, height)
 
-  def show(self):
+  def show(self, bringtofront=True):
     self._webkit.show()
-
+    if bringtofront:
+      self._webkit.activateWindow()
 
 class SettingsBasedCookieJar(QtNetwork.QNetworkCookieJar):
   def __init__(self):
