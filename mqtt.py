@@ -26,9 +26,8 @@ def connect():
   _client.on_connect = _on_connect
   _client.on_disconnect = _on_disconnect
   _client.on_message = _on_message
-  _client.username_pw_set(
-      settings.get_setting("UserId"),
-      settings.get_setting("AccessToken"))
+  uid, token = settings.get_user_info()
+  _client.username_pw_set(uid, token)
   _client.tls_set("/tmp/test.pem")
   _client.connect_async(url, port)
   _client.loop_start()

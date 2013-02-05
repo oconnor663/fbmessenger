@@ -6,14 +6,10 @@ from PyQt4 import QtNetwork
 
 from external import External
 import settings
+import event
 
 class BrowserWindow:
   _instances = []
-
-  @staticmethod
-  def refresh_all():
-    for browser in BrowserWindow._instances:
-      browser.refresh()
 
   def __init__(self, startUrl):
     self._instances.append(self)
@@ -32,6 +28,7 @@ class BrowserWindow:
         QtWebKit.QWebSettings.LocalStorageEnabled, True)
     websettings.setLocalStoragePath(
         path.join(settings.SETTINGS_DIR, "localstorage"))
+    event.subscribe(settings.AUTH_CHANGED_EVENT, lambda: self.refresh())
     self._webkit.resize(200, 600)
     self.refresh()
 

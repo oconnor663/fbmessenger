@@ -29,10 +29,11 @@ class AsyncRequest(threading.Thread):
     event.run_on_ui_thread(lambda: cached_callback(response_text))
 
 def _add_access_token(url):
-  if not settings.get_setting("AccessToken"):
+  uid, token = settings.get_user_info()
+  if not token:
     return url
   scheme, netloc, path, query_string, fragment = urlsplit(url)
   query_params = parse_qsl(query_string)
-  query_params.append(("access_token", settings.get_setting("AccessToken")))
+  query_params.append(("access_token", token))
   new_query_string = urlencode(query_params)
   return urlunsplit((scheme, netloc, path, new_query_string, fragment))

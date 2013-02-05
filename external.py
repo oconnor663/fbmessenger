@@ -94,7 +94,7 @@ class External(QtCore.QObject):
 
   @external(result=str)
   def getAccessToken(self):
-    token = settings.get_setting("AccessToken")
+    uid, token = settings.get_user_info()
     return token
 
   @external(str, result=bool)
@@ -122,8 +122,8 @@ class External(QtCore.QObject):
 
   @external(result=bool)
   def hasAccessToken(self):
-    ret = settings.get_setting("AccessToken") != ""
-    return ret
+    uid, token = settings.get_user_info()
+    return bool(token)
 
   @external()
   def heartBeat(self):
@@ -132,9 +132,7 @@ class External(QtCore.QObject):
 
   @external()
   def invalidateAccessToken(self):
-    settings.set_setting("AccessToken", "")
-    settings.set_setting("UserId", "")
-    browser.BrowserWindow.refresh_all()
+    settings.set_user_info('', '')
 
   @fake_external(result=bool)
   def isIdle(self):
@@ -187,10 +185,7 @@ class External(QtCore.QObject):
 
   @external(str, str)
   def setAccessToken(self, uid, token):
-    if token != settings.get_setting("AccessToken"):
-      settings.set_setting("AccessToken", token)
-      settings.set_setting("UserId", uid)
-      browser.BrowserWindow.refresh_all()
+    settings.set_user_info(uid, token)
 
   @external(str)
   def setArbiterInformCallback(self, callback):

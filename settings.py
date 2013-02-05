@@ -2,6 +2,10 @@ import os
 from os import path
 import json
 
+import event
+
+AUTH_CHANGED_EVENT = object()
+
 def set_setting(key, val):
   _settings[key] = val
   _save_settings()
@@ -14,6 +18,17 @@ def set_value(key, val):
 
 def get_value(key, default=""):
   return _values.get(key, default)
+
+def get_user_info():
+  return (get_setting("UserId"), get_setting("AccessToken"))
+
+def set_user_info(userid, token):
+  old_uid, old_token = get_user_info()
+  if userid != old_uid or token != old_token:
+    print("AUTH CHANGED")
+    set_setting("UserId", userid)
+    set_setting("AccessToken", token)
+    event.inform(AUTH_CHANGED_EVENT)
 
 def _save_settings():
   if not path.exists(SETTINGS_DIR):
