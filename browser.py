@@ -64,8 +64,14 @@ class BrowserWindow:
       url += "?access_token=" + access_token
     self._webkit.load(QtCore.QUrl(url))
 
+  def removeframe(self):
+    self._webkit.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+
   def resize(self, width, height):
     self._webkit.resize(width, height)
+
+  def settitle(self, title):
+    self._webkit.setWindowTitle(title)
 
   def show(self, bringtofront=True):
     self._webkit.show()

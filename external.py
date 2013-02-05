@@ -267,7 +267,7 @@ class External(QtCore.QObject):
   def toggleDock(self):
     pass
 
-  @fake_external()
+  @external()
   def hideChatWindow(self):
     windows.chat_window.hide()
 
@@ -283,10 +283,26 @@ class External(QtCore.QObject):
   def sendMessage(self, topic, message):
     pass
 
-  @fake_external(str)
+  @external(str)
   def setChatWindowTitle(self, title):
-    pass
+    windows.chat_window.settitle(title)
 
-  @fake_external(bool)
+  @external(bool)
   def showChatWindow(self, bringtofront):
     windows.chat_window.show(bringtofront)
+
+  @external(int)
+  def setToastHeight(self, height):
+    windows.toast_window.resize(330, height)
+
+  @external()
+  def showToast(self):
+    windows.toast_window.show()
+
+  @external()
+  def closeToast(self):
+    windows.toast_window.hide()
+
+  @external()
+  def fadeToast(self):
+    windows.toast_window.hide()
