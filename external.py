@@ -68,7 +68,17 @@ class External(QtCore.QObject):
     # string as a literal, no net change in serialization level.) This is
     # because in some implementations, JS isn't capable of passing out
     # arbitrary objects.
-    deserialized_payload = json.loads(payload)
+
+    # PyQt4 seems to have a weird bug where, when the JS string passed in
+    # contains surrogate pairs (unicode chars that don't fit in a wchar, like
+    # these: "𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡"), those pairs are parsed correctly into single Python
+    # characters, but an extra '\x00' character is appended to the end of the
+    # string for each pair. JSON decoding chokes on those, so we remove them
+    # here.
+    # TODO(jacko): Do we need a more general workaround for this issue?
+    remove_null_hack_payload = payload.strip('\x00')
+
+    deserialized_payload = json.loads(remove_null_hack_payload)
     arbiter_inform_all(eventname, deserialized_payload)
 
   def arbiter_inform_local(self, eventname, payload):
