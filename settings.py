@@ -25,7 +25,6 @@ def get_user_info():
 def set_user_info(userid, token):
   old_uid, old_token = get_user_info()
   if userid != old_uid or token != old_token:
-    print("AUTH CHANGED")
     set_setting("UserId", userid)
     set_setting("AccessToken", token)
     event.inform(AUTH_CHANGED_EVENT)

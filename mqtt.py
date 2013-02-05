@@ -17,20 +17,17 @@ _client = None
 
 is_connected = False
 
-def connect():
+def init():
   # TODO(jacko): reconnect when the auth info changes
-  url = "orcart.facebook.com"
-  port = 443
   global _client
   _client = mosquitto.Mosquitto("linuxmessenger")
   _client.on_connect = _on_connect
   _client.on_disconnect = _on_disconnect
   _client.on_message = _on_message
-  uid, token = settings.get_user_info()
-  _client.username_pw_set(uid, token)
-  _client.tls_set("/tmp/test.pem")
-  _client.connect_async(url, port)
-  _client.loop_start()
+  # TODO(jacko): do something reasonable with this certs file
+  _client.tls_set("certs.pem")
+  event.subscribe(settings.AUTH_CHANGED_EVENT, _connect)
+  _connect()
 
 def subscribe(topic):
   if topic not in _subscriptions:
@@ -38,21 +35,28 @@ def subscribe(topic):
   if _client:
     _client.subscribe(topic, 0)
 
+def _connect():
+  url = "orcart.facebook.com"
+  port = 443
+  uid, token = settings.get_user_info()
+  _client.disconnect()
+  _client.username_pw_set(uid, token)
+  _client.connect_async(url, port)
+  _client.loop_start()
+
 def _on_connect(mosq, obj, rc):
   global is_connected
   if rc == 0: # success
     is_connected = True
-    print("MQTT connected successfully")
     for topic in _subscriptions:
       _client.subscribe(topic, 0)
   else:
     is_connected = False
-    print("MQTT connection failure:", rc_map[rc])
+    # TODO(jacko) put an exponential backoff in here
 
 def _on_disconnect(mosq, obj, rc):
   global is_connected
   is_connected = False
-  print("MQTT disconnected")
 
 def _on_message(mosq, obj, msg):
   topic = msg.topic

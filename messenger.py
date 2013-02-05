@@ -19,7 +19,7 @@ import external
 def main():
   app = QtGui.QApplication(sys.argv)
 
-  mqtt.connect()
+  mqtt.init()
 
   base_url = "http://www.facebook.com"
   base_url_override = settings.get_setting("BaseUrl")
