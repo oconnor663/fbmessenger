@@ -163,6 +163,8 @@ class External(QtCore.QObject):
 
   @external(str)
   def navigateBrowserToUrl(self, url):
+    if not url.startswith("http://") and not url.startswith("https://"):
+      url = "http://" + url
     webbrowser.open(url)
 
   @external(str)
