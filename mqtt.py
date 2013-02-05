@@ -26,8 +26,8 @@ def init():
   _client.on_message = _on_message
   # TODO(jacko): do something reasonable with this certs file
   _client.tls_set("certs.pem")
-  event.subscribe(settings.AUTH_CHANGED_EVENT, _connect)
-  _connect()
+  event.subscribe(settings.AUTH_CHANGED_EVENT, _reconnect)
+  _reconnect()
 
 def subscribe(topic):
   if topic not in _subscriptions:
@@ -35,14 +35,17 @@ def subscribe(topic):
   if _client:
     _client.subscribe(topic, 0)
 
-def _connect():
+def _reconnect():
   url = "orcart.facebook.com"
   port = 443
   uid, token = settings.get_user_info()
-  _client.disconnect()
   _client.username_pw_set(uid, token)
-  _client.connect_async(url, port)
-  _client.loop_start()
+  if is_connected:
+    _client.disconnect()
+    _client.loop_stop()
+  if token:
+    _client.connect_async(url, port)
+    _client.loop_start()
 
 def _on_connect(mosq, obj, rc):
   global is_connected
