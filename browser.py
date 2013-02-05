@@ -29,7 +29,6 @@ class BrowserWindow:
     websettings.setLocalStoragePath(
         path.join(settings.SETTINGS_DIR, "localstorage"))
     event.subscribe(settings.AUTH_CHANGED_EVENT, lambda: self.refresh())
-    self._webkit.resize(200, 600)
     self.refresh()
 
   def call_js_function(self, name, *args):
@@ -61,6 +60,9 @@ class BrowserWindow:
     if access_token != "":
       url += "?access_token=" + access_token
     self._webkit.load(QtCore.QUrl(url))
+
+  def resize(self, width, height):
+    self._webkit.resize(width, height)
 
   def show(self):
     self._webkit.show()

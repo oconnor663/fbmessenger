@@ -28,7 +28,12 @@ def main():
     base_url = base_url_override
 
   main_window = BrowserWindow(base_url + "/desktop/client/")
+  main_window.resize(212, 640)
   main_window.show()
+
+  chat_window = BrowserWindow(base_url + "/desktop/client/chat.php")
+  chat_window.resize(420, 340)
+  chat_window.show()
 
   # enable quitting with ctrl-c
   signal.signal(signal.SIGINT, signal.SIG_DFL)

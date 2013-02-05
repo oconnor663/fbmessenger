@@ -243,3 +243,47 @@ class External(QtCore.QObject):
   @fake_external()
   def hideDialog(self):
     pass
+
+  @fake_external()
+  def hideMainWindow(self):
+    pass
+
+  @fake_external(result=bool)
+  def isDocked(self):
+    return False
+
+  @fake_external(result=bool)
+  def isWindowVisible(self):
+    return False
+
+  @fake_external()
+  def showMainWindow(self):
+    pass
+
+  @fake_external()
+  def toggleDock(self):
+    pass
+
+  @fake_external()
+  def hideChatWindow(self):
+    pass
+
+  @fake_external(result=bool)
+  def isChatWindowActive(self):
+    return False
+
+  @fake_external()
+  def playIncomingMessageSound(self):
+    pass
+
+  @fake_external(str, str)
+  def sendMessage(self, topic, message):
+    pass
+
+  @fake_external(str)
+  def setChatWindowTitle(self, title):
+    pass
+
+  @fake_external(bool)
+  def showChatWindow(self, bringToFront):
+    pass
