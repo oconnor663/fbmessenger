@@ -90,8 +90,9 @@ class External(QtCore.QObject):
       self._browserwindow.call_js_function(
           self._arbiter_name, eventname, payload)
 
-  @fake_external()
+  @external()
   def captureMouseWheel(self):
+    # no-op
     pass
 
   @external()
@@ -196,8 +197,9 @@ class External(QtCore.QObject):
   def recycle(self):
     pass
 
-  @fake_external()
+  @external()
   def releaseMouseWheel(self):
+    # no-op
     pass
 
   @external(str, str)

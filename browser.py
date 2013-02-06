@@ -18,10 +18,12 @@ class BrowserWindow:
     self.MOVE_EVENT = self._view.MOVE_EVENT
     self.RESIZE_EVENT = self._view.RESIZE_EVENT
     self.CLOSE_EVENT = self._view.CLOSE_EVENT
+    self.WHEEL_EVENT = self._view.WHEEL_EVENT
     self.external = external.External(self)
     frame = self._view.page().mainFrame()
     frame.javaScriptWindowObjectCleared.connect(self._cleared_callback)
     event.subscribe(self.CLOSE_EVENT, self._on_close)
+    event.subscribe(self.WHEEL_EVENT, self._on_wheel)
     manager = self._view.page().networkAccessManager()
     manager.setCookieJar(SettingsBasedCookieJar())
     manager.sslErrors.connect(self._handle_ssl_error)
@@ -64,6 +66,12 @@ class BrowserWindow:
   def _on_close(self):
     self.external.arbiter_inform_local("FbDesktop.windowClosed", None)
 
+  def _on_wheel(self, delta):
+    # 120 is the standard wheel delta, but JS works better with 40 for some
+    # reason. This is the same adjustment we use on Windows.
+    adjusted_delta = delta * 40 / 120
+    self.external.arbiter_inform_local("FbDesktop.mouseWheel", adjusted_delta)
+
   def refresh(self):
     url = self._startUrl
     access_token = settings.get_setting("AccessToken")
@@ -94,6 +102,7 @@ class MessengerWebView(QtWebKit.QWebView):
     self.MOVE_EVENT = object()
     self.CLOSE_EVENT = object()
     self.RESIZE_EVENT = object()
+    self.WHEEL_EVENT = object()
 
   def moveEvent(self, event_obj):
     QtWebKit.QWebView.moveEvent(self, event_obj)
@@ -106,6 +115,10 @@ class MessengerWebView(QtWebKit.QWebView):
   def closeEvent(self, event_obj):
     QtWebKit.QWebView.closeEvent(self, event_obj)
     event.inform(self.CLOSE_EVENT)
+
+  def wheelEvent(self, event_obj):
+    QtWebKit.QWebView.wheelEvent(self, event_obj)
+    event.inform(self.WHEEL_EVENT, event_obj.delta())
 
 class SettingsBasedCookieJar(QtNetwork.QNetworkCookieJar):
   def __init__(self):
