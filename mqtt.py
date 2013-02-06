@@ -3,6 +3,7 @@ import mosquitto
 import settings
 import event
 
+CONNECTION_CHANGED_EVENT = object()
 MESSAGE_RECEIVED_EVENT = object()
 
 rc_map = ["success",
@@ -50,18 +51,23 @@ def _reconnect():
 def _on_connect(mosq, obj, rc):
   global is_connected
   if rc == 0: # success
-    is_connected = True
+    _set_is_connected(True)
     for topic in _subscriptions:
       _client.subscribe(topic, 0)
   else:
-    is_connected = False
+    _set_is_connected(False)
     # TODO(jacko) put an exponential backoff in here
 
 def _on_disconnect(mosq, obj, rc):
-  global is_connected
-  is_connected = False
+  _set_is_connected(False)
 
 def _on_message(mosq, obj, msg):
   topic = msg.topic
   payload = msg.payload.decode('utf-8')
   event.inform(MESSAGE_RECEIVED_EVENT, topic, payload)
+
+def _set_is_connected(value):
+  global is_connected
+  if is_connected != value:
+    is_connected = value
+    event.inform(CONNECTION_CHANGED_EVENT, value)
