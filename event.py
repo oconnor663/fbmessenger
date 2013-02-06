@@ -24,7 +24,7 @@ class ThreadMarshaller(QtCore.QObject):
   runuithreadsignal = QtCore.pyqtSignal(object)
 
 _marshall = ThreadMarshaller()
-_marshall.informsignal.connect(_inform_UIT)
-_marshall.runuithreadsignal.connect(_run_on_ui_thread_UIT)
+_marshall.informsignal.connect(_inform_UIT, QtCore.Qt.QueuedConnection)
+_marshall.runuithreadsignal.connect(_run_on_ui_thread_UIT, QtCore.Qt.QueuedConnection)
 
 _events_map = {}
