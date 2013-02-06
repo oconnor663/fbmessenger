@@ -1,13 +1,10 @@
+import application
 import browser
 import settings
 import event
 import external
 
-def init(desktop):
-  # TODO(jacko): Contain the dependency on this Qt object.
-  global _desktop
-  _desktop = desktop
-
+def init():
   base_url = "http://www.facebook.com"
   base_url_override = settings.get_setting("BaseUrl")
   if (base_url_override):
@@ -35,8 +32,8 @@ def init(desktop):
 def show_toast():
   width, height = toast_window.get_size()
   margin = 40
-  g = _desktop.screenGeometry()
-  newx = g.x() + g.width() - width - margin
-  newy = g.y() + g.height() - height - margin
+  dx, dy, dwidth, dheight = application.get_desktop_geometry()
+  newx = dx + dwidth - width - margin
+  newy = dy + dheight - height - margin
   toast_window.set_position(newx, newy)
   toast_window.show()
