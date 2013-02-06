@@ -1,5 +1,7 @@
 import browser
 import settings
+import event
+import external
 
 def init():
   base_url = "http://www.facebook.com"
@@ -12,6 +14,10 @@ def init():
   main_window = browser.BrowserWindow(base_url + "/desktop/client/")
   main_window.resize(212, 640)
   main_window.settitle("Messenger")
+  def main_window_moved():
+    external.arbiter_inform_all("FbDesktop.mainWindowMoved", None)
+  event.subscribe(main_window.MOVE_EVENT, main_window_moved)
+  event.subscribe(main_window.RESIZE_EVENT, main_window_moved)
   main_window.show()
 
   global chat_window

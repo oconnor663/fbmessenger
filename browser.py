@@ -14,14 +14,18 @@ class BrowserWindow:
   def __init__(self, startUrl):
     self._instances.append(self)
     self._startUrl = startUrl
-    self._webkit = QtWebKit.QWebView()
+    self._view = MessengerWebView()
+    self.MOVE_EVENT = self._view.MOVE_EVENT
+    self.RESIZE_EVENT = self._view.RESIZE_EVENT
+    self.CLOSE_EVENT = self._view.CLOSE_EVENT
     self.external = external.External(self)
-    frame = self._webkit.page().mainFrame()
+    frame = self._view.page().mainFrame()
     frame.javaScriptWindowObjectCleared.connect(self._cleared_callback)
-    manager = self._webkit.page().networkAccessManager()
+    event.subscribe(self.CLOSE_EVENT, self._on_close)
+    manager = self._view.page().networkAccessManager()
     manager.setCookieJar(SettingsBasedCookieJar())
     manager.sslErrors.connect(self._handle_ssl_error)
-    websettings = self._webkit.page().settings()
+    websettings = self._view.page().settings()
     websettings.setAttribute(
         QtWebKit.QWebSettings.DeveloperExtrasEnabled, True)
     websettings.setAttribute(
@@ -35,10 +39,10 @@ class BrowserWindow:
     name_str = json.dumps(name)
     args_str = ",".join(json.dumps(arg) for arg in args)
     script = "window[{0}]({1})".format(name_str, args_str)
-    self._webkit.page().mainFrame().evaluateJavaScript(script)
+    self._view.page().mainFrame().evaluateJavaScript(script)
 
   def _cleared_callback(self):
-    frame = self._webkit.page().mainFrame()
+    frame = self._view.page().mainFrame()
     frame.addToJavaScriptWindowObject("external", self.external)
 
   def _handle_ssl_error(self, reply, errors):
@@ -52,31 +56,56 @@ class BrowserWindow:
       print("SSL error!")
 
   def hide(self):
-    self._webkit.hide()
+    self._view.hide()
 
   def navigate(self, url):
-    self._webkit.load(QtCore.QUrl(url))
+    self._view.load(QtCore.QUrl(url))
+
+  def _on_close(self):
+    self.external.arbiter_inform_local("FbDesktop.windowClosed", None)
 
   def refresh(self):
     url = self._startUrl
     access_token = settings.get_setting("AccessToken")
     if access_token != "":
       url += "?access_token=" + access_token
-    self._webkit.load(QtCore.QUrl(url))
+    self._view.load(QtCore.QUrl(url))
 
   def removeframe(self):
-    self._webkit.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+    self._view.setWindowFlags(QtCore.Qt.FramelessWindowHint)
 
   def resize(self, width, height):
-    self._webkit.resize(width, height)
+    self._view.resize(width, height)
 
   def settitle(self, title):
-    self._webkit.setWindowTitle(title)
+    self._view.setWindowTitle(title)
 
   def show(self, bringtofront=True):
-    self._webkit.show()
+    self._view.show()
     if bringtofront:
-      self._webkit.activateWindow()
+      self._view.activateWindow()
+
+# The only way to capture events like move and close is to subclass the
+# QWebView and override these methods. We do as little as possible here,
+# though, for abstraction's sake.
+class MessengerWebView(QtWebKit.QWebView):
+  def __init__(self):
+    QtWebKit.QWebView.__init__(self)
+    self.MOVE_EVENT = object()
+    self.CLOSE_EVENT = object()
+    self.RESIZE_EVENT = object()
+
+  def moveEvent(self, event_obj):
+    QtWebKit.QWebView.moveEvent(self, event_obj)
+    event.inform(self.MOVE_EVENT)
+
+  def resizeEvent(self, event_obj):
+    QtWebKit.QWebView.resizeEvent(self, event_obj)
+    event.inform(self.RESIZE_EVENT)
+
+  def closeEvent(self, event_obj):
+    QtWebKit.QWebView.closeEvent(self, event_obj)
+    event.inform(self.CLOSE_EVENT)
 
 class SettingsBasedCookieJar(QtNetwork.QNetworkCookieJar):
   def __init__(self):

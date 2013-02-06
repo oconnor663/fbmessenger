@@ -46,10 +46,10 @@ def arbiter_inform_all(eventname, payload):
   for externalobj in External._instances:
     externalobj.arbiter_inform_local(eventname, payload)
 
-def arbiter_inform_mqtt(topic, payload):
+def _arbiter_inform_mqtt_message(topic, payload):
   arbiter_inform_all("FbDesktop.mqtt_" + topic, payload)
 
-event.subscribe(mqtt.MESSAGE_RECEIVED_EVENT, arbiter_inform_mqtt)
+event.subscribe(mqtt.MESSAGE_RECEIVED_EVENT, _arbiter_inform_mqtt_message)
 
 class External(QtCore.QObject):
   _instances = []
