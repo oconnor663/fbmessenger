@@ -20,7 +20,7 @@ def main():
   app = QtGui.QApplication(sys.argv)
 
   mqtt.init()
-  windows.init()
+  windows.init(app.desktop())
 
   # enable quitting with ctrl-c
   signal.signal(signal.SIGINT, signal.SIG_DFL)

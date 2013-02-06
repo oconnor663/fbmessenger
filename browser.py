@@ -51,6 +51,14 @@ class BrowserWindow:
     frame = self._view.page().mainFrame()
     frame.addToJavaScriptWindowObject("external", self.external)
 
+  def get_position(self):
+    g = self._view.geometry()
+    return (g.x(), g.y())
+
+  def get_size(self):
+    g = self._view.geometry()
+    return (g.width(), g.height())
+
   def _handle_ssl_error(self, reply, errors):
     # Ignore SSL errors when we've overridden the default URL
     if settings.get_setting("BaseUrl"):
@@ -86,10 +94,13 @@ class BrowserWindow:
   def removeframe(self):
     self._view.setWindowFlags(QtCore.Qt.FramelessWindowHint)
 
-  def resize(self, width, height):
+  def set_position(self, x, y):
+    self._view.move(x, y)
+
+  def set_size(self, width, height):
     self._view.resize(width, height)
 
-  def settitle(self, title):
+  def set_title(self, title):
     self._view.setWindowTitle(title)
 
   def show(self, bringtofront=True):

@@ -301,7 +301,7 @@ class External(QtCore.QObject):
 
   @external(str)
   def setChatWindowTitle(self, title):
-    windows.chat_window.settitle(title)
+    windows.chat_window.set_title(title)
 
   @external(bool)
   def showChatWindow(self, bringtofront):
@@ -309,11 +309,11 @@ class External(QtCore.QObject):
 
   @external(int)
   def setToastHeight(self, height):
-    windows.toast_window.resize(330, height)
+    windows.toast_window.set_size(330, height)
 
   @external()
   def showToast(self):
-    windows.toast_window.show()
+    windows.show_toast()
 
   @external()
   def closeToast(self):
