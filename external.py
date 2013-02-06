@@ -287,9 +287,9 @@ class External(QtCore.QObject):
   def hideChatWindow(self):
     windows.chat_window.hide()
 
-  @fake_external(result=bool)
+  @external(result=bool)
   def isChatWindowActive(self):
-    return False
+    return windows.chat_window.is_active()
 
   @fake_external()
   def playIncomingMessageSound(self):

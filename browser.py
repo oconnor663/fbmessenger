@@ -72,6 +72,9 @@ class BrowserWindow:
   def hide(self):
     self._view.hide()
 
+  def is_active(self):
+    return self._view.isActiveWindow()
+
   def navigate(self, url):
     self._view.load(QtCore.QUrl(url))
 
