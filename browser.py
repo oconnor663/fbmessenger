@@ -27,6 +27,10 @@ class BrowserWindow:
     manager = self._view.page().networkAccessManager()
     manager.setCookieJar(SettingsBasedCookieJar())
     manager.sslErrors.connect(self._handle_ssl_error)
+    cache = QtNetwork.QNetworkDiskCache()
+    cache.setCacheDirectory(
+        path.join(settings.SETTINGS_DIR, "cache"))
+    manager.setCache(cache)
     websettings = self._view.page().settings()
     websettings.setAttribute(
         QtWebKit.QWebSettings.DeveloperExtrasEnabled, True)
