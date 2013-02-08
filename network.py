@@ -21,14 +21,14 @@ class AsyncRequest(threading.Thread):
     self.start()
 
   def run(self):
-    token_url = _add_access_token(self._url)
+    token_url = add_access_token(self._url)
     response = urlopen(token_url, self._postbytes)
     response_text = response.read().decode("utf-8")
     # avoid a self reference in the callback, so this object can get gc'd
     cached_callback = self._callback
     event.run_on_ui_thread(lambda: cached_callback(response_text))
 
-def _add_access_token(url):
+def add_access_token(url):
   uid, token = settings.get_user_info()
   if not token:
     return url

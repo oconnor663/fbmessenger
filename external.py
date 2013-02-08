@@ -1,5 +1,3 @@
-from PyQt4 import QtCore
-import inspect
 import webbrowser
 import json
 
@@ -9,38 +7,6 @@ import browser
 import mqtt
 import event
 import windows
-
-def external(*types, **results):
-  qt_decorator = QtCore.pyqtSlot(*types, **results)
-  def decorator(function):
-    def wrapper(self, *args):
-      # Put special stuff here
-      return function(self, *args)
-    wrapper.__name__ = function.__name__
-    return qt_decorator(wrapper)
-  return decorator
-
-def fake_external(*types, **results):
-  qt_decorator = QtCore.pyqtSlot(*types, **results)
-  def decorator(function):
-    def wrapper(self, *args):
-      # Put special stuff here
-      arg_names = inspect.getargspec(function)[0][1:]
-      frame = inspect.currentframe()
-      arg_values = inspect.getargvalues(frame)[3]['args']
-      args_str = ", ".join(a + "=" + _truncate(repr(b)) for (a, b) in zip(arg_names, arg_values))
-      print("FAKE {0}({1})".format(function.__name__, args_str))
-      return function(self, *args)
-    wrapper.__name__ = function.__name__
-    return qt_decorator(wrapper)
-  return decorator
-
-def _truncate(s):
-  maxlen = 50
-  if len(s) > maxlen:
-    return s[:maxlen-3] + '...'
-  else:
-    return s
 
 def arbiter_inform_all(eventname, payload):
   for externalobj in External._instances:
@@ -55,16 +21,16 @@ def _on_mqtt_change(new_value):
 event.subscribe(mqtt.MESSAGE_RECEIVED_EVENT, _on_mqtt_message)
 event.subscribe(mqtt.CONNECTION_CHANGED_EVENT, _on_mqtt_change)
 
-class External(QtCore.QObject):
+class External(browser.ExternalBase):
   _instances = []
 
   def __init__(self, browserWindow):
-    QtCore.QObject.__init__(self)
+    browser.ExternalBase.__init__(self)
     self._browserwindow = browserWindow
     self._arbiter_name = None
     self._instances.append(self)
 
-  @external(str, str)
+  @browser.external_decorator(str, str)
   def arbiterInformSerialized(self, eventname, payload):
     # The contract here is that JS will serialize a value, and we will
     # deserialize it before we pass it back in. (Recall that passing it
@@ -90,235 +56,235 @@ class External(QtCore.QObject):
       self._browserwindow.call_js_function(
           self._arbiter_name, eventname, payload)
 
-  @external()
+  @browser.external_decorator()
   def captureMouseWheel(self):
     # no-op
     pass
 
-  @external()
+  @browser.external_decorator()
   def clearHeartBeat(self):
     # no-op
     pass
 
-  @fake_external(str, str, result=int)
+  @browser.fake_external_decorator(str, str, result=int)
   def asyncConfirm(self, message, caption):
     return 0
 
-  @external(str)
+  @browser.external_decorator(str)
   def debugLog(self, text):
     print(text)
 
-  @external(result=str)
+  @browser.external_decorator(result=str)
   def getAccessToken(self):
     uid, token = settings.get_user_info()
     return token
 
-  @external(str, result=bool)
+  @browser.external_decorator(str, result=bool)
   def getCapability(self, capabilityName):
     # TODO(jacko): implement ticker flyouts etc.
     return False
 
-  @external(str, result=str)
+  @browser.external_decorator(str, result=str)
   def getSetting(self, key):
     val = settings.get_setting(key)
     return val
 
-  @fake_external(result=str)
+  @browser.fake_external_decorator(result=str)
   def getStateBlob(self):
     return ''
 
-  @external(str, result=str)
+  @browser.external_decorator(str, result=str)
   def getValue(self, key):
     val = settings.get_value(key)
     return val
 
-  @fake_external(result=str)
+  @browser.fake_external_decorator(result=str)
   def getVersion(self):
     return ''
 
-  @external(result=bool)
+  @browser.external_decorator(result=bool)
   def hasAccessToken(self):
     uid, token = settings.get_user_info()
     return bool(token)
 
-  @external()
+  @browser.external_decorator()
   def heartBeat(self):
     # no-op
     pass
 
-  @external()
+  @browser.external_decorator()
   def invalidateAccessToken(self):
     settings.set_user_info('', '')
 
-  @fake_external(result=bool)
+  @browser.fake_external_decorator(result=bool)
   def isIdle(self):
     return False
 
-  @external(result=bool)
+  @browser.external_decorator(result=bool)
   def isMqttConnected(self):
     return mqtt.is_connected
 
-  @fake_external(result=bool)
+  @browser.fake_external_decorator(result=bool)
   def isToastVisible(self):
     return False
 
-  @external(str, str)
+  @browser.external_decorator(str, str)
   def logEvent(self, name, payload):
     # no-op
     pass
 
-  @external(str, str, str)
+  @browser.external_decorator(str, str, str)
   def logEvent2(self, category, name, payload):
     # no-op
     pass
 
-  @external(str)
+  @browser.external_decorator(str)
   def mqttSubscribe(self, topic):
     mqtt.subscribe(topic)
 
-  @external(str)
+  @browser.external_decorator(str)
   def navigateBrowserToUrl(self, url):
     if not url.startswith("http://") and not url.startswith("https://"):
       url = "http://" + url
     webbrowser.open(url)
 
-  @external(str)
+  @browser.external_decorator(str)
   def navigateWindowToUrl(self, url):
     self._browserwindow.navigate(url)
 
-  @external(str, str, str, str)
+  @browser.external_decorator(str, str, str, str)
   def postWebRequest(self, url, callback, method, poststr):
     def _callback(reply):
       self._browserwindow.call_js_function(callback, reply)
     network.AsyncRequest(url, _callback,
         poststr if method.upper() == "POST" else None)
 
-  @fake_external()
+  @browser.fake_external_decorator()
   def recycle(self):
     pass
 
-  @external()
+  @browser.external_decorator()
   def releaseMouseWheel(self):
     # no-op
     pass
 
-  @external(str, str)
+  @browser.external_decorator(str, str)
   def setAccessToken(self, uid, token):
     settings.set_user_info(uid, token)
 
-  @external(str)
+  @browser.external_decorator(str)
   def setArbiterInformCallback(self, callback):
     self._arbiter_name = callback
 
-  @external(int)
+  @browser.external_decorator(int)
   def setIcon(self, icon_id):
     # TODO(jacko) do something with this
     pass
 
-  @external(str, str)
+  @browser.external_decorator(str, str)
   def setSetting(self, key, value):
     settings.set_setting(key, value)
 
-  @external(str, str)
+  @browser.external_decorator(str, str)
   def setValue(self, key, value):
     settings.set_value(key, value)
 
-  @fake_external()
+  @browser.fake_external_decorator()
   def showChatDevTools(self):
     pass
 
-  @fake_external()
+  @browser.fake_external_decorator()
   def showDevTools(self):
     pass
 
-  @fake_external()
+  @browser.fake_external_decorator()
   def showSidebarDevTools(self):
     pass
 
-  @fake_external()
+  @browser.fake_external_decorator()
   def showToastDevTools(self):
     pass
 
-  @fake_external()
+  @browser.fake_external_decorator()
   def showFlyoutDevTools(self):
     pass
 
-  @fake_external()
+  @browser.fake_external_decorator()
   def showDialogDevTools(self):
     pass
 
-  @fake_external(str, str)
+  @browser.fake_external_decorator(str, str)
   def showTickerFlyout(self, url, storyYPos):
     pass
 
-  @fake_external()
+  @browser.fake_external_decorator()
   def hideTickerFlyout(self):
     pass
 
-  @fake_external()
+  @browser.fake_external_decorator()
   def showDialog(self):
     pass
 
-  @fake_external()
+  @browser.fake_external_decorator()
   def hideDialog(self):
     pass
 
-  @fake_external()
+  @browser.fake_external_decorator()
   def hideMainWindow(self):
     pass
 
-  @fake_external(result=bool)
+  @browser.fake_external_decorator(result=bool)
   def isDocked(self):
     return False
 
-  @fake_external(result=bool)
+  @browser.fake_external_decorator(result=bool)
   def isWindowVisible(self):
     return False
 
-  @fake_external()
+  @browser.fake_external_decorator()
   def showMainWindow(self):
     pass
 
-  @fake_external()
+  @browser.fake_external_decorator()
   def toggleDock(self):
     pass
 
-  @external()
+  @browser.external_decorator()
   def hideChatWindow(self):
     windows.chat_window.hide()
 
-  @external(result=bool)
+  @browser.external_decorator(result=bool)
   def isChatWindowActive(self):
     return windows.chat_window.is_active()
 
-  @fake_external()
+  @browser.fake_external_decorator()
   def playIncomingMessageSound(self):
     pass
 
-  @fake_external(str, str)
+  @browser.fake_external_decorator(str, str)
   def sendMessage(self, topic, message):
     pass
 
-  @external(str)
+  @browser.external_decorator(str)
   def setChatWindowTitle(self, title):
     windows.chat_window.set_title(title)
 
-  @external(bool)
+  @browser.external_decorator(bool)
   def showChatWindow(self, bringtofront):
     windows.chat_window.show(bringtofront)
 
-  @external(int)
+  @browser.external_decorator(int)
   def setToastHeight(self, height):
     windows.toast_window.set_size(330, height)
 
-  @external()
+  @browser.external_decorator()
   def showToast(self):
     windows.show_toast()
 
-  @external()
+  @browser.external_decorator()
   def closeToast(self):
     windows.toast_window.hide()
 
-  @external()
+  @browser.external_decorator()
   def fadeToast(self):
     windows.toast_window.hide()
