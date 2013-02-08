@@ -22,8 +22,12 @@ class AsyncRequest(threading.Thread):
 
   def run(self):
     token_url = add_access_token(self._url)
-    response = urlopen(token_url, self._postbytes)
-    response_text = response.read().decode("utf-8")
+    response_text = ""
+    try:
+      response = urlopen(token_url, self._postbytes)
+      response_text = response.read().decode("utf-8")
+    except Exception as e:
+      print("async request failed:", e)
     # avoid a self reference in the callback, so this object can get gc'd
     cached_callback = self._callback
     event.run_on_ui_thread(lambda: cached_callback(response_text))
