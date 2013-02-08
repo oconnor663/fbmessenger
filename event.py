@@ -13,15 +13,16 @@ def _inform_UIT(event, args, kwargs):
     for callback in _events_map[event]:
       callback(*args, **kwargs)
 
-def run_on_ui_thread(action):
-  _marshall.runuithreadsignal.emit(action)
+def run_on_ui_thread(action, *, delay_ms=0):
+  _marshall.runuithreadsignal.emit(action, delay_ms)
 
-def _run_on_ui_thread_UIT(action):
-  action()
+def _run_on_ui_thread_UIT(action, delay_ms):
+  # NB: QTimer cannot be used on non-Qt threads.
+  QtCore.QTimer.singleShot(delay_ms, action)
 
 class ThreadMarshaller(QtCore.QObject):
   informsignal = QtCore.pyqtSignal(object, tuple, dict)
-  runuithreadsignal = QtCore.pyqtSignal(object)
+  runuithreadsignal = QtCore.pyqtSignal(object, int)
 
 _marshall = ThreadMarshaller()
 _marshall.informsignal.connect(_inform_UIT, QtCore.Qt.QueuedConnection)
