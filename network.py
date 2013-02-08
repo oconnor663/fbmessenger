@@ -3,11 +3,11 @@ import threading
 try:
   # python3
   from urllib.request import urlopen
-  from urllib.parse import urlsplit, parse_qsl, urlencode, urlunsplit
+  from urllib.parse import urlsplit, parse_qs, urlencode, urlunsplit
 except ImportError:
   #python2
   from urllib import urlopen, urlencode
-  from urlparse import urlsplit, parse_qsl, urlunsplit
+  from urlparse import urlsplit, parse_qs, urlunsplit
 
 import settings
 import event
@@ -33,7 +33,7 @@ def add_access_token(url):
   if not token:
     return url
   scheme, netloc, path, query_string, fragment = urlsplit(url)
-  query_params = parse_qsl(query_string)
-  query_params.append(("access_token", token))
-  new_query_string = urlencode(query_params)
+  query_params = parse_qs(query_string)
+  query_params["access_token"] = token
+  new_query_string = urlencode(query_params, doseq=True)
   return urlunsplit((scheme, netloc, path, new_query_string, fragment))
