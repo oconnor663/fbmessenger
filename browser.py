@@ -1,5 +1,6 @@
 import json
 import inspect
+import time
 from os import path
 from PyQt4 import QtCore
 from PyQt4 import QtWebKit
@@ -53,6 +54,18 @@ class BrowserWindow:
     frame = self._view.page().mainFrame()
     frame.addToJavaScriptWindowObject("external", self._external)
 
+  def fade(self, duration_ms):
+    start_ms = time.time() * 1000
+    def _fade_callback():
+      t_ms = time.time() * 1000 - start_ms
+      if t_ms > duration_ms or t_ms < 0:
+        self.hide()
+      else:
+        self._view.setWindowOpacity(1 - float(t_ms) / duration_ms)
+        # 60 fps
+        event.run_on_ui_thread(_fade_callback, delay_ms=1000./60)
+    _fade_callback()
+
   def get_position(self):
     g = self._view.geometry()
     return (g.x(), g.y())
@@ -94,7 +107,7 @@ class BrowserWindow:
     token_url = network.add_access_token(self._startUrl)
     self._view.load(QtCore.QUrl(token_url))
 
-  def removeframe(self):
+  def remove_frame(self):
     self._view.setWindowFlags(QtCore.Qt.FramelessWindowHint)
 
   def set_position(self, x, y):
@@ -107,6 +120,7 @@ class BrowserWindow:
     self._view.setWindowTitle(title)
 
   def show(self, bringtofront=True):
+    self._view.setWindowOpacity(1)
     self._view.show()
     if bringtofront:
       self._view.activateWindow()

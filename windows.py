@@ -27,7 +27,7 @@ def init():
 
   global toast_window
   toast_window = browser.BrowserWindow(base_url + "/desktop/client/toast.php")
-  toast_window.removeframe()
+  toast_window.remove_frame()
 
 def show_toast():
   width, height = toast_window.get_size()

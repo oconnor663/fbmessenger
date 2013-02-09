@@ -287,4 +287,5 @@ class External(browser.ExternalBase):
 
   @browser.external_decorator()
   def fadeToast(self):
-    windows.toast_window.hide()
+    fade_ms = 2000
+    windows.toast_window.fade(fade_ms)
