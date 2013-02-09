@@ -6,12 +6,11 @@ def subscribe(event, callback):
   _events_map[event].append(callback)
 
 def inform(event, *args, **kwargs):
-  _marshall.informsignal.emit(event, args, kwargs)
-
-def _inform_UIT(event, args, kwargs):
-  if event in _events_map:
-    for callback in _events_map[event]:
-      callback(*args, **kwargs)
+  def _inform_UIT():
+    if event in _events_map:
+      for callback in _events_map[event]:
+        callback(*args, **kwargs)
+  run_on_ui_thread(_inform_UIT)
 
 def run_on_ui_thread(action, *, delay_ms=0):
   _marshall.runuithreadsignal.emit(action, delay_ms)
@@ -21,11 +20,9 @@ def _run_on_ui_thread_UIT(action, delay_ms):
   QtCore.QTimer.singleShot(delay_ms, action)
 
 class ThreadMarshaller(QtCore.QObject):
-  informsignal = QtCore.pyqtSignal(object, tuple, dict)
   runuithreadsignal = QtCore.pyqtSignal(object, int)
 
 _marshall = ThreadMarshaller()
-_marshall.informsignal.connect(_inform_UIT, QtCore.Qt.QueuedConnection)
 _marshall.runuithreadsignal.connect(_run_on_ui_thread_UIT, QtCore.Qt.QueuedConnection)
 
 _events_map = {}
