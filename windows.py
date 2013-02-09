@@ -41,7 +41,7 @@ def init():
 
 def show_toast():
   width, height = toast_window.get_size()
-  margin = 40
+  margin = 10
   dx, dy, dwidth, dheight = application.get_desktop_geometry()
   newx = dx + dwidth - width - margin
   newy = dy + dheight - height - margin

@@ -124,9 +124,9 @@ class External(browser.ExternalBase):
   def isMqttConnected(self):
     return mqtt.is_connected
 
-  @browser.fake_external_decorator(result=bool)
+  @browser.external_decorator(result=bool)
   def isToastVisible(self):
-    return False
+    return windows.toast_window.is_visible()
 
   @browser.external_decorator(str, str)
   def logEvent(self, name, payload):

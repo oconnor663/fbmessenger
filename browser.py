@@ -93,6 +93,9 @@ class BrowserWindow:
   def is_active(self):
     return self._view.isActiveWindow()
 
+  def is_visible(self):
+    return not self._view.isHidden()
+
   def navigate(self, url):
     token_url = network.add_access_token(url)
     self._view.load(QtCore.QUrl(token_url))
