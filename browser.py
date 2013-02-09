@@ -15,13 +15,16 @@ class BrowserWindow:
   _instances = []
 
   def __init__(self, startUrl):
+    self.ACTIVATED_EVENT = object()
+    self.CLOSE_EVENT = object()
+    self.DEACTIVATED_EVENT = object()
+    self.MOVE_EVENT = object()
+    self.RESIZE_EVENT = object()
+    self.WHEEL_EVENT = object()
+
     self._instances.append(self)
     self._startUrl = startUrl
-    self._view = MessengerWebView()
-    self.MOVE_EVENT = self._view.MOVE_EVENT
-    self.RESIZE_EVENT = self._view.RESIZE_EVENT
-    self.CLOSE_EVENT = self._view.CLOSE_EVENT
-    self.WHEEL_EVENT = self._view.WHEEL_EVENT
+    self._view = MessengerWebView(self)
     self._external = external.External(self)
     frame = self._view.page().mainFrame()
     frame.javaScriptWindowObjectCleared.connect(self._bind_external)
@@ -129,28 +132,33 @@ class BrowserWindow:
 # QWebView and override these methods. We do as little as possible here,
 # though, for abstraction's sake.
 class MessengerWebView(QtWebKit.QWebView):
-  def __init__(self):
+  def __init__(self, browserwindow):
     QtWebKit.QWebView.__init__(self)
-    self.MOVE_EVENT = object()
-    self.CLOSE_EVENT = object()
-    self.RESIZE_EVENT = object()
-    self.WHEEL_EVENT = object()
-
-  def moveEvent(self, event_obj):
-    QtWebKit.QWebView.moveEvent(self, event_obj)
-    event.inform(self.MOVE_EVENT)
-
-  def resizeEvent(self, event_obj):
-    QtWebKit.QWebView.resizeEvent(self, event_obj)
-    event.inform(self.RESIZE_EVENT)
+    self._bw = browserwindow
 
   def closeEvent(self, event_obj):
     QtWebKit.QWebView.closeEvent(self, event_obj)
-    event.inform(self.CLOSE_EVENT)
+    event.inform(self._bw.CLOSE_EVENT)
+
+  def focusInEvent(self, event_obj):
+    QtWebKit.QWebView.focusInEvent(self, event_obj)
+    event.inform(self._bw.ACTIVATED_EVENT)
+
+  def focusOutEvent(self, event_obj):
+    QtWebKit.QWebView.focusOutEvent(self, event_obj)
+    event.inform(self._bw.DEACTIVATED_EVENT)
+
+  def moveEvent(self, event_obj):
+    QtWebKit.QWebView.moveEvent(self, event_obj)
+    event.inform(self._bw.MOVE_EVENT)
+
+  def resizeEvent(self, event_obj):
+    QtWebKit.QWebView.resizeEvent(self, event_obj)
+    event.inform(self._bw.RESIZE_EVENT)
 
   def wheelEvent(self, event_obj):
     QtWebKit.QWebView.wheelEvent(self, event_obj)
-    event.inform(self.WHEEL_EVENT, event_obj.delta())
+    event.inform(self._bw.WHEEL_EVENT, event_obj.delta())
 
 class SettingsBasedCookieJar(QtNetwork.QNetworkCookieJar):
   def __init__(self):
@@ -209,4 +217,6 @@ def fake_external_decorator(*types, **results):
     return qt_decorator(wrapper)
   return decorator
 
+# external.py depends on browser.py at definition time, so we import it at the
+# end instead of at the top
 import external
