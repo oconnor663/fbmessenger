@@ -8,6 +8,10 @@ import mqtt
 import event
 import windows
 
+def init():
+  event.subscribe(mqtt.MESSAGE_RECEIVED_EVENT, _on_mqtt_message)
+  event.subscribe(mqtt.CONNECTION_CHANGED_EVENT, _on_mqtt_change)
+
 def arbiter_inform_all(eventname, payload):
   for externalobj in External._instances:
     externalobj.arbiter_inform_local(eventname, payload)
@@ -17,9 +21,6 @@ def _on_mqtt_message(topic, payload):
 
 def _on_mqtt_change(new_value):
   arbiter_inform_all("FbDesktop.mqttConnectionChanged", new_value)
-
-event.subscribe(mqtt.MESSAGE_RECEIVED_EVENT, _on_mqtt_message)
-event.subscribe(mqtt.CONNECTION_CHANGED_EVENT, _on_mqtt_change)
 
 class External(browser.ExternalBase):
   _instances = []

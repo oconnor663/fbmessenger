@@ -5,10 +5,12 @@ import application
 
 import mqtt
 import windows
+import external
 
 def main():
   application.init()
   mqtt.init()
+  external.init()
   windows.init()
 
   application.main_loop()

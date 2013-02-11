@@ -26,6 +26,7 @@ class BrowserWindow:
     self._startUrl = startUrl
     self._view = MessengerWebView(self)
     self._external = external.External(self)
+    self._fade_animation_token = None
     frame = self._view.page().mainFrame()
     frame.javaScriptWindowObjectCleared.connect(self._bind_external)
     event.subscribe(self.CLOSE_EVENT, self._on_close)
@@ -58,6 +59,9 @@ class BrowserWindow:
     frame.addToJavaScriptWindowObject("external", self._external)
 
   def fade(self, duration_ms):
+    if (self._fade_animation_token):
+      print("Fade called during fade, ignored.")
+      return
     start_ms = time.time() * 1000
     def _fade_callback():
       t_ms = time.time() * 1000 - start_ms
@@ -65,9 +69,8 @@ class BrowserWindow:
         self.hide()
       else:
         self._view.setWindowOpacity(1 - float(t_ms) / duration_ms)
-        # 60 fps
-        event.run_on_ui_thread(_fade_callback, delay_ms=1000./60)
-    _fade_callback()
+    self._fade_animation_token = event.run_on_main_thread(
+        _fade_callback, repeating=True, delay_ms=1000./60)
 
   def get_position(self):
     g = self._view.geometry()
@@ -79,10 +82,11 @@ class BrowserWindow:
 
   def _handle_ssl_error(self, reply, errors):
     # Ignore SSL errors when we've overridden the default URL
+    global _printed_ssl_ignore
     if settings.get_setting("BaseUrl"):
       reply.ignoreSslErrors()
-      if not settings.get_value("AlreadyPrintedSslIgnore"):
-        settings.set_value("AlreadyPrintedSslIgnore", True)
+      if not _printed_ssl_ignore:
+        _printed_ssl_ignore = True
         print("Ignoring SSL errors.")
     else:
       print("SSL error!")
@@ -126,6 +130,9 @@ class BrowserWindow:
     self._view.setWindowTitle(title)
 
   def show(self, bringtofront=True):
+    if self._fade_animation_token:
+      self._fade_animation_token.stop()
+      self._fade_animation_token = None
     self._view.setWindowOpacity(1)
     self._view.show()
     if bringtofront:
@@ -219,6 +226,8 @@ def fake_external_decorator(*types, **results):
     wrapper.__name__ = function.__name__
     return qt_decorator(wrapper)
   return decorator
+
+_printed_ssl_ignore = False
 
 # external.py depends on browser.py at definition time, so we import it at the
 # end instead of at the top

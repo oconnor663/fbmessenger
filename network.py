@@ -30,7 +30,7 @@ class AsyncRequest(threading.Thread):
       print("async request failed:", e)
     # avoid a self reference in the callback, so this object can get gc'd
     cached_callback = self._callback
-    event.run_on_ui_thread(lambda: cached_callback(response_text))
+    event.run_on_main_thread(lambda: cached_callback(response_text))
 
 def add_access_token(url):
   uid, token = settings.get_user_info()
