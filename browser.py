@@ -116,9 +116,6 @@ class BrowserWindow:
     token_url = network.add_access_token(self._startUrl)
     self._view.load(QtCore.QUrl(token_url))
 
-  def remove_frame(self):
-    self._view.setWindowFlags(QtCore.Qt.FramelessWindowHint)
-
   def set_position(self, x, y):
     self._view.move(x, y)
 
@@ -136,6 +133,17 @@ class BrowserWindow:
     self._view.show()
     if bringtofront:
       self._view.activateWindow()
+
+  def style_toast(self):
+    # We would like to prevent the toast from creating a taskbar icon. The Qt
+    # way to do this would be to make the toast widget a child of another
+    # window and set its Dialog flag. Unfortunately, that seems to mess with
+    # focus within the app (the parent window steals focus "back" when the
+    # toast goes away). TODO(jacko): Find another way.
+    self._view.setWindowFlags(QtCore.Qt.FramelessWindowHint |
+                              QtCore.Qt.WindowStaysOnTopHint)
+    self._view.setAttribute(QtCore.Qt.WA_ShowWithoutActivating)
+    self._view.setAttribute(QtCore.Qt.WA_X11DoNotAcceptFocus)
 
 # The only way to capture events like move and close is to subclass the
 # QWebView and override these methods. We do as little as possible here,
