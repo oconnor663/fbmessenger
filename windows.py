@@ -5,7 +5,7 @@ import event
 import external
 
 def init():
-  base_url = "http://www.facebook.com"
+  base_url = "https://www.facebook.com"
   base_url_override = settings.get_setting("BaseUrl")
   if (base_url_override):
     print("BaseUrl:", base_url_override)

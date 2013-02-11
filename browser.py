@@ -1,5 +1,4 @@
 import json
-import inspect
 import time
 from os import path
 from PyQt4 import QtCore
@@ -9,7 +8,7 @@ from PyQt4 import QtNetwork
 import settings
 import event
 import network
-# import external at bottom of file to handle circularity
+import external
 
 class BrowserWindow:
   _instances = []
@@ -191,44 +190,4 @@ class SettingsBasedCookieJar(QtNetwork.QNetworkCookieJar):
       cookieList.append(QtNetwork.QNetworkCookie(name, value))
     return cookieList
 
-# external objects will inherit from this class
-ExternalBase = QtCore.QObject
-
-# methods on the external object with this decorator are exposed to js
-def external_decorator(*types, **results):
-  qt_decorator = QtCore.pyqtSlot(*types, **results)
-  def decorator(function):
-    def wrapper(self, *args):
-      # Put special stuff here
-      return function(self, *args)
-    wrapper.__name__ = function.__name__
-    return qt_decorator(wrapper)
-  return decorator
-
-# prints a message to remind me to implement this function
-def fake_external_decorator(*types, **results):
-  def _truncate(s):
-    maxlen = 50
-    if len(s) > maxlen:
-      return s[:maxlen-3] + '...'
-    else:
-      return s
-  qt_decorator = QtCore.pyqtSlot(*types, **results)
-  def decorator(function):
-    def wrapper(self, *args):
-      # Put special stuff here
-      arg_names = inspect.getargspec(function)[0][1:]
-      frame = inspect.currentframe()
-      arg_values = inspect.getargvalues(frame)[3]['args']
-      args_str = ", ".join(a + "=" + _truncate(repr(b)) for (a, b) in zip(arg_names, arg_values))
-      print("FAKE {0}({1})".format(function.__name__, args_str))
-      return function(self, *args)
-    wrapper.__name__ = function.__name__
-    return qt_decorator(wrapper)
-  return decorator
-
 _printed_ssl_ignore = False
-
-# external.py depends on browser.py at definition time, so we import it at the
-# end instead of at the top
-import external
