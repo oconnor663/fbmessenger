@@ -32,7 +32,7 @@ def init():
   chat_window = browser.BrowserWindow(base_url + "/desktop/client/chat.php")
   chat_window.set_size(420, 340)
   def chat_window_activated():
-    external.arbiter_inform_all("FbDesktop.chatWindowActivated", None)
+    external.arbiter_inform_all("FbdChat.chatWindowActivated", None)
   event.subscribe(chat_window.ACTIVATED_EVENT, chat_window_activated)
 
   global toast_window
