@@ -1,5 +1,6 @@
 import json
 import time
+import webbrowser
 from os import path
 from PyQt4 import QtCore
 from PyQt4 import QtWebKit
@@ -26,18 +27,21 @@ class BrowserWindow:
     self._view = MessengerWebView(self)
     self._external = external.External(self)
     self._fade_animation_token = None
-    frame = self._view.page().mainFrame()
+    page = self._view.page()
+    page.linkClicked.connect(self._on_link_clicked)
+    page.setLinkDelegationPolicy(QtWebKit.QWebPage.DelegateAllLinks)
+    frame = page.mainFrame()
     frame.javaScriptWindowObjectCleared.connect(self._bind_external)
     event.subscribe(self.CLOSE_EVENT, self._on_close)
     event.subscribe(self.WHEEL_EVENT, self._on_wheel)
-    manager = self._view.page().networkAccessManager()
+    manager = page.networkAccessManager()
     manager.setCookieJar(SettingsBasedCookieJar())
     manager.sslErrors.connect(self._handle_ssl_error)
     cache = QtNetwork.QNetworkDiskCache()
     cache.setCacheDirectory(
         path.join(settings.SETTINGS_DIR, "cache"))
     manager.setCache(cache)
-    websettings = self._view.page().settings()
+    websettings = page.settings()
     websettings.setAttribute(
         QtWebKit.QWebSettings.DeveloperExtrasEnabled, True)
     websettings.setAttribute(
@@ -105,6 +109,9 @@ class BrowserWindow:
 
   def _on_close(self):
     self._external.arbiter_inform_local("FbDesktop.windowClosed", None)
+
+  def _on_link_clicked(self, qurl):
+    webbrowser.open(qurl.toString())
 
   def _on_wheel(self, delta):
     # 120 is the standard wheel delta, but JS works better with 40 for some
