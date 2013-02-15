@@ -4,6 +4,12 @@ import settings
 import event
 import external
 
+# Used for toast and chat window positioning
+_margin = 10
+
+# Chat position is not saved when the application closes
+_chat_rectangle = None
+
 def init():
   base_url = "https://www.facebook.com"
   base_url_override = settings.get_setting("BaseUrl")
@@ -22,28 +28,60 @@ def init():
   event.subscribe(main_window.RESIZE_EVENT, main_window_moved)
   def main_window_activated():
     external.arbiter_inform_all("FbDesktop.mainWindowActivated", None)
-  event.subscribe(main_window.ACTIVATED_EVENT, main_window_activated)
+  event.subscribe(main_window.ACTIVATE_EVENT, main_window_activated)
   def main_window_deactivated():
     external.arbiter_inform_all("FbDesktop.mainWindowDeactivated", None)
-  event.subscribe(main_window.DEACTIVATED_EVENT, main_window_deactivated)
-  main_window.show()
+  event.subscribe(main_window.DEACTIVATE_EVENT, main_window_deactivated)
+  def main_window_moved():
+    settings.set_setting("MainWindowRectangle", main_window.get_rectangle())
+  event.subscribe(main_window.MOVE_EVENT, main_window_moved)
+  show_main_window()
 
   global chat_window
   chat_window = browser.BrowserWindow(base_url + "/desktop/client/chat.php")
   chat_window.set_size(420, 340)
   def chat_window_activated():
     external.arbiter_inform_all("FbdChat.chatWindowActivated", None)
-  event.subscribe(chat_window.ACTIVATED_EVENT, chat_window_activated)
+  event.subscribe(chat_window.ACTIVATE_EVENT, chat_window_activated)
+  def chat_window_moved():
+    global _chat_rectangle
+    _chat_rectangle = chat_window.get_rectangle()
+  event.subscribe(chat_window.MOVE_EVENT, chat_window_moved)
 
   global toast_window
   toast_window = browser.BrowserWindow(base_url + "/desktop/client/toast.php")
   toast_window.style_toast()
 
+def show_main_window():
+  saved_rectangle = settings.get_setting("MainWindowRectangle")
+  if saved_rectangle:
+    main_window.set_rectangle(*_fit_rectangle_to_desktop(*saved_rectangle))
+  main_window.show()
+
+def show_chat_window(bringtofront):
+  if _chat_rectangle:
+    rect = _chat_rectangle
+  else:
+    desk_x, desk_y, desk_width, desk_height = application.get_desktop_rectangle()
+    main_x, main_y, main_width, main_height = main_window.get_rectangle()
+    chat_x, chat_y, chat_width, chat_height = chat_window.get_rectangle()
+    default_x = main_x - chat_width - _margin
+    if default_x < desk_x:
+      default_x = main_x + main_width + _margin
+    default_y = main_y + main_height - chat_height
+    rect = (default_x, default_y, chat_width, chat_height)
+  fittedrect = _fit_rectangle_to_desktop(*rect)
+  chat_window.set_rectangle(*fittedrect)
+  chat_window.show(bringtofront)
+
 def show_toast():
-  width, height = toast_window.get_size()
-  margin = 10
-  dx, dy, dwidth, dheight = application.get_desktop_geometry()
-  newx = dx + dwidth - width - margin
-  newy = dy + dheight - height - margin
+  x, y, width, height = toast_window.get_rectangle()
+  dx, dy, dwidth, dheight = application.get_desktop_rectangle()
+  newx = dx + dwidth - width - _margin
+  newy = dy + dheight - height - _margin
   toast_window.set_position(newx, newy)
   toast_window.show()
+
+def _fit_rectangle_to_desktop(x, y, width, height):
+  dx, dy, dwidth, dheight = application.get_desktop_rectangle()
+  return (x, y, min(width, dwidth), min(height, dheight))

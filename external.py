@@ -306,7 +306,7 @@ class External(QtCore.QObject):
 
   @external_decorator(bool)
   def showChatWindow(self, bringtofront):
-    windows.chat_window.show(bringtofront)
+    windows.show_chat_window(bringtofront)
 
   @external_decorator(int)
   def setToastHeight(self, height):

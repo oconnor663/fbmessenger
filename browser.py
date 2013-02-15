@@ -15,9 +15,9 @@ class BrowserWindow:
   _instances = []
 
   def __init__(self, startUrl):
-    self.ACTIVATED_EVENT = object()
+    self.ACTIVATE_EVENT = object()
     self.CLOSE_EVENT = object()
-    self.DEACTIVATED_EVENT = object()
+    self.DEACTIVATE_EVENT = object()
     self.MOVE_EVENT = object()
     self.RESIZE_EVENT = object()
     self.WHEEL_EVENT = object()
@@ -75,13 +75,9 @@ class BrowserWindow:
     self._fade_animation_token = event.run_on_main_thread(
         _fade_callback, repeating=True, delay_ms=1000./60)
 
-  def get_position(self):
+  def get_rectangle(self):
     g = self._view.geometry()
-    return (g.x(), g.y())
-
-  def get_size(self):
-    g = self._view.geometry()
-    return (g.width(), g.height())
+    return (g.x(), g.y(), g.width(), g.height())
 
   def _handle_ssl_error(self, reply, errors):
     # Ignore SSL errors when we've overridden the default URL
@@ -126,6 +122,9 @@ class BrowserWindow:
   def set_position(self, x, y):
     self._view.move(x, y)
 
+  def set_rectangle(self, x, y, width, height):
+    self._view.setGeometry(x, y, width, height)
+
   def set_size(self, width, height):
     self._view.resize(width, height)
 
@@ -166,11 +165,11 @@ class MessengerWebView(QtWebKit.QWebView):
 
   def focusInEvent(self, event_obj):
     QtWebKit.QWebView.focusInEvent(self, event_obj)
-    event.inform(self._bw.ACTIVATED_EVENT)
+    event.inform(self._bw.ACTIVATE_EVENT)
 
   def focusOutEvent(self, event_obj):
     QtWebKit.QWebView.focusOutEvent(self, event_obj)
-    event.inform(self._bw.DEACTIVATED_EVENT)
+    event.inform(self._bw.DEACTIVATE_EVENT)
 
   def moveEvent(self, event_obj):
     QtWebKit.QWebView.moveEvent(self, event_obj)

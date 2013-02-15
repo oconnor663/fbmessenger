@@ -19,6 +19,6 @@ def init():
 def main_loop():
   sys.exit(_app.exec_())
 
-def get_desktop_geometry():
+def get_desktop_rectangle():
   g = _app.desktop().geometry()
   return (g.x(), g.y(), g.width(), g.height())
