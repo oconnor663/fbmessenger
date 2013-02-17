@@ -1,4 +1,5 @@
 import threading
+from PyQt4 import QtNetwork
 
 try:
   # python3
@@ -11,6 +12,13 @@ except ImportError:
 
 import settings
 import event
+
+NETWORK_CHANGED_EVENT = object()
+
+def init():
+  global _manager
+  _manager = QtNetwork.QNetworkConfigurationManager()
+  _manager.configurationChanged.connect(lambda: event.inform(NETWORK_CHANGED_EVENT))
 
 class AsyncRequest(threading.Thread):
   def __init__(self, url, callback=None, poststr=None):
