@@ -19,6 +19,9 @@ def init():
   global _manager
   _manager = QtNetwork.QNetworkConfigurationManager()
   _manager.configurationChanged.connect(lambda: event.inform(NETWORK_CHANGED_EVENT))
+  # TODO(jacko): There are some situations, including quick repeated network
+  # changes, where this event doesn't get fired. See if we can find a more
+  # reliable event.
 
 class AsyncRequest(threading.Thread):
   def __init__(self, url, callback=None, poststr=None):
