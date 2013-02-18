@@ -324,3 +324,14 @@ class External(QtCore.QObject):
   def fadeToast(self):
     fade_ms = 2000
     windows.toast_window.fade(fade_ms)
+
+  # The argument to showCustomToast is passed in as an actual JS object, rather
+  # than being serialized. (This worked on Mac, and the function wasn't used on
+  # Linux.) QVariant is the type that Qt needs to marshall it.
+  #
+  # JS checks for this function before calling it, so since it's currently a
+  # no-op we don't really need to provide it. I'm keeping is here mostly to
+  # document the call signature for future me. TODO(jacko): Use this?
+  @external_decorator(QtCore.QVariant)
+  def showCustomToast(self, blob):
+    pass

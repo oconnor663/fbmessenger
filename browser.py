@@ -14,7 +14,7 @@ import external
 class BrowserWindow:
   _instances = []
 
-  def __init__(self, startUrl):
+  def __init__(self, starturl):
     self.ACTIVATE_EVENT = object()
     self.CLOSE_EVENT = object()
     self.DEACTIVATE_EVENT = object()
@@ -23,7 +23,7 @@ class BrowserWindow:
     self.WHEEL_EVENT = object()
 
     self._instances.append(self)
-    self._startUrl = startUrl
+    self._starturl = starturl
     self._view = MessengerWebView(self)
     self._external = external.External(self)
     self._fade_animation_token = None
@@ -116,7 +116,7 @@ class BrowserWindow:
     self._external.arbiter_inform_local("FbDesktop.mouseWheel", adjusted_delta)
 
   def refresh(self):
-    token_url = network.add_access_token(self._startUrl)
+    token_url = network.add_access_token(self._starturl)
     self._view.load(QtCore.QUrl(token_url))
 
   def set_position(self, x, y):
