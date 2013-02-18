@@ -151,7 +151,10 @@ class External(QtCore.QObject):
   def invalidateAccessToken(self):
     settings.set_user_info('', '')
 
-  @fake_external_decorator(result=bool)
+  # Idle detection is hard to do in a portable way. systemd and ConsoleKit both
+  # provide idle signals, and we could also call the XScreenSaver libraries.
+  # Not worth the complexity.
+  @external_decorator(result=bool)
   def isIdle(self):
     return False
 
