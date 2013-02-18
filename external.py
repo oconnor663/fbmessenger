@@ -299,9 +299,9 @@ class External(QtCore.QObject):
   def playIncomingMessageSound(self):
     pass
 
-  @fake_external_decorator(str, str)
+  @external_decorator(str, str)
   def sendMessage(self, topic, message):
-    pass
+    mqtt.publish(topic, message)
 
   @external_decorator(str)
   def setChatWindowTitle(self, title):

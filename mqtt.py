@@ -32,6 +32,15 @@ def init():
   event.subscribe(network.NETWORK_CHANGED_EVENT, _force_reconnect)
   _BackgroundThread().start()
 
+def subscribe(topic):
+  if topic not in _subscriptions:
+    _subscriptions.append(topic)
+  if _client:
+    _client.subscribe(topic, 0)
+
+def publish(topic, payload):
+  _client.publish(topic, payload)
+
 class _BackgroundThread(threading.Thread):
   def run(self):
     _background_loop()
@@ -82,12 +91,6 @@ def _backoff_wait():
   _backoff_count += 1
   _backoff_timer = threading.Event()
   _backoff_timer.wait(wait_time)
-
-def subscribe(topic):
-  if topic not in _subscriptions:
-    _subscriptions.append(topic)
-  if _client:
-    _client.subscribe(topic, 0)
 
 def _on_connect(mosq, obj, rc):
   global is_connected, _backoff_count
