@@ -8,6 +8,7 @@ import settings
 import mqtt
 import event
 import windows
+import application
 
 # methods on the external object with this decorator are exposed to js
 def external_decorator(*types, **results):
@@ -295,9 +296,9 @@ class External(QtCore.QObject):
   def isChatWindowActive(self):
     return windows.chat_window.is_active()
 
-  @fake_external_decorator()
+  @external_decorator()
   def playIncomingMessageSound(self):
-    pass
+    application.play_message_sound()
 
   @external_decorator(str, str)
   def sendMessage(self, topic, message):
