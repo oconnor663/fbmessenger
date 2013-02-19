@@ -48,7 +48,7 @@ class BrowserWindow:
         QtWebKit.QWebSettings.LocalStorageEnabled, True)
     websettings.setLocalStoragePath(
         path.join(settings.SETTINGS_DIR, "localstorage"))
-    event.subscribe(settings.AUTH_CHANGED_EVENT, lambda: self.refresh())
+    event.subscribe(settings.AUTH_CHANGED_EVENT, self.refresh)
     self.refresh()
 
   def call_js_function(self, name, *args):

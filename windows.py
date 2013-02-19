@@ -54,6 +54,7 @@ def init():
   toast_window.style_toast()
   # height of one toast -- this will be overridden but just in case
   toast_window.set_size(TOAST_WIDTH, 72)
+  event.subscribe(settings.AUTH_CHANGED_EVENT, toast_window.hide)
 
 def show_main_window():
   saved_rectangle = settings.get_setting("MainWindowRectangle")

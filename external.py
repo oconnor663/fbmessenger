@@ -198,9 +198,9 @@ class External(QtCore.QObject):
     network.AsyncRequest(url, _callback,
         poststr if method.upper() == "POST" else None)
 
-  @fake_external_decorator()
+  @external_decorator()
   def recycle(self):
-    pass
+    self._browserwindow.refresh()
 
   @external_decorator()
   def releaseMouseWheel(self):
