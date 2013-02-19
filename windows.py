@@ -4,6 +4,7 @@ import settings
 import event
 import external
 
+TOAST_WIDTH = 330
 # Used for toast and chat window positioning
 _margin = 10
 
@@ -51,6 +52,8 @@ def init():
   global toast_window
   toast_window = browser.BrowserWindow(base_url + "/desktop/client/toast.php")
   toast_window.style_toast()
+  # height of one toast -- this will be overridden but just in case
+  toast_window.set_size(TOAST_WIDTH, 72)
 
 def show_main_window():
   saved_rectangle = settings.get_setting("MainWindowRectangle")
@@ -74,13 +77,34 @@ def show_chat_window(bringtofront):
   chat_window.set_rectangle(*fittedrect)
   chat_window.show(bringtofront)
 
-def show_toast():
+def _position_toast():
   x, y, width, height = toast_window.get_rectangle()
   dx, dy, dwidth, dheight = application.get_desktop_rectangle()
   newx = dx + dwidth - width - _margin
   newy = dy + dheight - height - _margin
   toast_window.set_position(newx, newy)
+
+# Our JS has an interesting bug where it reports the wrong value to
+# setToastHeight. For some reason the layout isn't finished for several more
+# milliseconds, and the height grows. This hack has us actually reaching into
+# the toast and pulling out the height of a single div, several times to make
+# sure it stabilizes. God help us.
+def _terrible_toast_height_hack():
+  def inner_hack():
+    height = toast_window.evaluate_js(
+        'document.getElementById("toast-frame").offsetHeight')
+    if height:
+      toast_window.set_size(TOAST_WIDTH, height)
+      _position_toast()
+    else:
+      print("Failed to hack out the toast height.")
+  for delay_ms in (0, 10, 100, 1000):
+    event.run_on_main_thread(inner_hack, delay_ms=delay_ms)
+
+def show_toast():
+  _position_toast()
   toast_window.show()
+  _terrible_toast_height_hack()
 
 def _fit_rectangle_to_desktop(x, y, width, height):
   dx, dy, dwidth, dheight = application.get_desktop_rectangle()

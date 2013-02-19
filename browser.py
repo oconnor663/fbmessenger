@@ -55,7 +55,10 @@ class BrowserWindow:
     name_str = json.dumps(name)
     args_str = ",".join(json.dumps(arg) for arg in args)
     script = "window[{0}]({1})".format(name_str, args_str)
-    self._view.page().mainFrame().evaluateJavaScript(script)
+    return self.evaluate_js(script)
+
+  def evaluate_js(self, expression):
+    return self._view.page().mainFrame().evaluateJavaScript(expression)
 
   def _bind_external(self):
     frame = self._view.page().mainFrame()

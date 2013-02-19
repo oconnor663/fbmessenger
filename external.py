@@ -314,7 +314,7 @@ class External(QtCore.QObject):
 
   @external_decorator(int)
   def setToastHeight(self, height):
-    windows.toast_window.set_size(330, height)
+    windows.toast_window.set_size(windows.TOAST_WIDTH, height)
 
   @external_decorator()
   def showToast(self):
