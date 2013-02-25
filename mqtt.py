@@ -1,7 +1,6 @@
 import mosquitto
 import threading
 import random
-import ssl
 
 import settings
 import event
@@ -56,8 +55,9 @@ def _background_loop():
       _client.username_pw_set(uid, token)
       try:
         rc = _client.connect(MQTT_URL, MQTT_PORT)
-      except ssl.SSLError:
-        print("SSL error on connect")
+      # Connect can throw some inconsistent exception :(
+      except Exception as e:
+        print("Mqtt connect error", e)
         rc = -1
       if rc != 0:
         # connection error
