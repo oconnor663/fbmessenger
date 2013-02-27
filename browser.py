@@ -35,7 +35,7 @@ class BrowserWindow:
     event.subscribe(self.CLOSE_EVENT, self._on_close)
     event.subscribe(self.WHEEL_EVENT, self._on_wheel)
     manager = page.networkAccessManager()
-    manager.setCookieJar(SettingsBasedCookieJar())
+    manager.setCookieJar(_cookie_jar_singleton)
     manager.sslErrors.connect(self._handle_ssl_error)
     cache = QtNetwork.QNetworkDiskCache()
     cache.setCacheDirectory(
@@ -207,5 +207,7 @@ class SettingsBasedCookieJar(QtNetwork.QNetworkCookieJar):
     for (name, value) in self._cookies.get(url.host(), {}).items():
       cookieList.append(QtNetwork.QNetworkCookie(name, value))
     return cookieList
+
+_cookie_jar_singleton = SettingsBasedCookieJar()
 
 _printed_ssl_ignore = False
