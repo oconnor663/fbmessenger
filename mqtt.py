@@ -60,7 +60,7 @@ def _background_loop():
       _client.username_pw_set(uid, token)
       try:
         rc = _client.connect(MQTT_URL, MQTT_PORT)
-      # Connect can throw some inconsistent exception :(
+      # connect can throw some inconsistent exception :(
       except Exception as e:
         print("Mqtt connect error", e)
         rc = -1
@@ -69,10 +69,6 @@ def _background_loop():
         _backoff_wait()
         continue
 
-    rc = _client.loop()
-    if rc != 0:
-      _backoff_wait()
-      continue
     if _must_reconnect:
       _must_reconnect = False
       _client.disconnect()
@@ -80,6 +76,16 @@ def _background_loop():
       # disconnected state, since it will never be called if the network
       # isn't present.
       _set_is_connected(False)
+
+    try:
+      rc = _client.loop()
+    # loop can throw some weird exceptions too
+    except Exception as e:
+      print("Mqtt loop error", e)
+      rc = -1
+    if rc != 0:
+      _backoff_wait()
+      continue
 
 def _force_reconnect():
   global _must_reconnect, _backoff_count, _backoff_timer
