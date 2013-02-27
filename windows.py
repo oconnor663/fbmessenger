@@ -62,7 +62,7 @@ def show_main_window():
     main_window.set_rectangle(*_fit_rectangle_to_desktop(*saved_rectangle))
   main_window.show()
 
-def show_chat_window(bringtofront):
+def show_chat_window():
   if _chat_rectangle:
     rect = _chat_rectangle
   else:
@@ -76,7 +76,7 @@ def show_chat_window(bringtofront):
     rect = (default_x, default_y, chat_width, chat_height)
   fittedrect = _fit_rectangle_to_desktop(*rect)
   chat_window.set_rectangle(*fittedrect)
-  chat_window.show(bringtofront)
+  chat_window.show()
 
 def _position_toast():
   x, y, width, height = toast_window.get_rectangle()

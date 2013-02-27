@@ -51,6 +51,9 @@ class BrowserWindow:
     event.subscribe(settings.AUTH_CHANGED_EVENT, self.refresh)
     self.refresh()
 
+  def activate(self):
+    self._view.activateWindow()
+
   def call_js_function(self, name, *args):
     name_str = json.dumps(name)
     args_str = ",".join(json.dumps(arg) for arg in args)
@@ -134,14 +137,12 @@ class BrowserWindow:
   def set_title(self, title):
     self._view.setWindowTitle(title)
 
-  def show(self, bringtofront=True):
+  def show(self):
     if self._fade_animation_token:
       self._fade_animation_token.stop()
       self._fade_animation_token = None
     self._view.setWindowOpacity(1)
     self._view.show()
-    if bringtofront:
-      self._view.activateWindow()
 
   def style_toast(self):
     # We would like to prevent the toast from creating a taskbar icon. The Qt
