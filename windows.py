@@ -36,6 +36,7 @@ def init():
   def main_window_moved():
     settings.set_setting("MainWindowRectangle", main_window.get_rectangle())
   event.subscribe(main_window.MOVE_EVENT, main_window_moved)
+  event.subscribe(main_window.CLOSE_EVENT, application.quit)
   show_main_window()
 
   global chat_window

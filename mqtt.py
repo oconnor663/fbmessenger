@@ -43,6 +43,11 @@ def publish(topic, payload):
   _client.publish(topic, payload)
 
 class _BackgroundThread(threading.Thread):
+  def __init__(self):
+    threading.Thread.__init__(self)
+    # don't stop the app from exiting
+    self.daemon = True
+
   def run(self):
     _background_loop()
 

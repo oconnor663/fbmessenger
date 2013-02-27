@@ -32,12 +32,15 @@ def init():
   # Enable quitting with ctrl-c
   signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-def main_loop():
-  sys.exit(_app.exec_())
-
 def get_desktop_rectangle():
   g = _app.desktop().geometry()
   return (g.x(), g.y(), g.width(), g.height())
+
+def handle_qt_debug_message(level, message):
+  print("Qt debug:", message.decode('utf-8'))
+
+def main_loop():
+  sys.exit(_app.exec_())
 
 def path_from_root_dir(path):
   return os.path.join(os.path.dirname(sys.argv[0]), path)
@@ -46,5 +49,5 @@ def play_message_sound():
   _pling_media.stop()
   _pling_media.play()
 
-def handle_qt_debug_message(level, message):
-  print("Qt debug:", message.decode('utf-8'))
+def quit():
+  _app.quit()
