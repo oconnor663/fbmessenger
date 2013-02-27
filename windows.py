@@ -49,6 +49,7 @@ def init():
     global _chat_rectangle
     _chat_rectangle = chat_window.get_rectangle()
   event.subscribe(chat_window.MOVE_EVENT, chat_window_moved)
+  event.subscribe(chat_window.RESIZE_EVENT, chat_window_moved)
 
   global toast_window
   toast_window = browser.BrowserWindow(base_url + "/desktop/client/toast.php")
