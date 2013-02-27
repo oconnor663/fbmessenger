@@ -66,6 +66,7 @@ def _background_loop():
 
     rc = _client.loop()
     if rc != 0:
+      _backoff_wait()
       continue
     if _must_reconnect:
       _must_reconnect = False
