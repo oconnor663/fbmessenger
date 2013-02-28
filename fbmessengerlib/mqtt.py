@@ -1,11 +1,11 @@
-import mosquitto
 import threading
 import random
 
-import settings
-import event
-import network
-import application
+from . import mosquitto
+from . import settings
+from . import event
+from . import network
+from . import application
 
 CONNECTION_CHANGED_EVENT = object()
 MESSAGE_RECEIVED_EVENT = object()
@@ -28,7 +28,7 @@ def init():
   _client.on_disconnect = _on_disconnect
   _client.on_message = _on_message
   # TODO(jacko): do something reasonable with this certs file
-  _client.tls_set(application.path_from_root_dir("certs_FIXME.pem"))
+  _client.tls_set(application.resource_path("certs_FIXME.pem"))
   event.subscribe(settings.AUTH_CHANGED_EVENT, _force_reconnect)
   event.subscribe(network.NETWORK_CHANGED_EVENT, _force_reconnect)
   _BackgroundThread().start()

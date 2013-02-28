@@ -2,7 +2,7 @@ import os
 from os import path
 import json
 
-import event
+from . import event
 
 AUTH_CHANGED_EVENT = object()
 

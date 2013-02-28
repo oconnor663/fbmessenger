@@ -10,8 +10,8 @@ except ImportError:
   from urllib import urlopen, urlencode
   from urlparse import urlsplit, parse_qs, urlunsplit
 
-import settings
-import event
+from . import settings
+from . import event
 
 NETWORK_CHANGED_EVENT = object()
 

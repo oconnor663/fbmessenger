@@ -3,12 +3,12 @@ import json
 import inspect
 from PyQt4 import QtCore
 
-import network
-import settings
-import mqtt
-import event
-import windows
-import application
+from . import network
+from . import settings
+from . import mqtt
+from . import event
+from . import windows
+from . import application
 
 # methods on the external object with this decorator are exposed to js
 def external_decorator(*types, **results):
@@ -44,18 +44,39 @@ def fake_external_decorator(*types, **results):
   return decorator
 
 def init():
-  event.subscribe(mqtt.MESSAGE_RECEIVED_EVENT, _on_mqtt_message)
-  event.subscribe(mqtt.CONNECTION_CHANGED_EVENT, _on_mqtt_change)
+  windows.main_window.bind_external(External(windows.main_window))
+  windows.chat_window.bind_external(External(windows.chat_window))
+  windows.toast_window.bind_external(External(windows.toast_window))
+
+  ### main window JS events
+  def main_window_moved():
+    arbiter_inform_all("FbDesktop.mainWindowMoved", None)
+  event.subscribe(windows.main_window.MOVE_EVENT, main_window_moved)
+  # js doesn't listen for a separate resize event, so we use move here
+  event.subscribe(windows.main_window.RESIZE_EVENT, main_window_moved)
+  def main_window_activated():
+    arbiter_inform_all("FbDesktop.mainWindowActivated", None)
+  event.subscribe(windows.main_window.ACTIVATE_EVENT, main_window_activated)
+  def main_window_deactivated():
+    arbiter_inform_all("FbDesktop.mainWindowDeactivated", None)
+  event.subscribe(windows.main_window.DEACTIVATE_EVENT, main_window_deactivated)
+
+  ### chat window js events
+  def chat_window_activated():
+    arbiter_inform_all("FbdChat.chatWindowActivated", None)
+  event.subscribe(windows.chat_window.ACTIVATE_EVENT, chat_window_activated)
+
+  ### mqtt events
+  def mqtt_message_received(topic, payload):
+    arbiter_inform_all("FbDesktop.mqtt_" + topic, payload)
+  event.subscribe(mqtt.MESSAGE_RECEIVED_EVENT, mqtt_message_received)
+  def mqtt_connection_changed(new_value):
+    arbiter_inform_all("FbDesktop.mqttConnectionChanged", new_value)
+  event.subscribe(mqtt.CONNECTION_CHANGED_EVENT, mqtt_connection_changed)
 
 def arbiter_inform_all(eventname, payload):
   for externalobj in External._instances:
     externalobj.arbiter_inform_local(eventname, payload)
-
-def _on_mqtt_message(topic, payload):
-  arbiter_inform_all("FbDesktop.mqtt_" + topic, payload)
-
-def _on_mqtt_change(new_value):
-  arbiter_inform_all("FbDesktop.mqttConnectionChanged", new_value)
 
 class External(QtCore.QObject):
   _instances = []

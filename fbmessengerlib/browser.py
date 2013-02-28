@@ -6,10 +6,9 @@ from PyQt4 import QtCore
 from PyQt4 import QtWebKit
 from PyQt4 import QtNetwork
 
-import settings
-import event
-import network
-import external
+from . import settings
+from . import event
+from . import network
 
 class BrowserWindow:
   _instances = []
@@ -25,13 +24,12 @@ class BrowserWindow:
     self._instances.append(self)
     self._starturl = starturl
     self._view = MessengerWebView(self)
-    self._external = external.External(self)
+    self._external = None
     self._fade_animation_token = None
     page = self._view.page()
+    self._frame = page.mainFrame()
     page.linkClicked.connect(self._on_link_clicked)
     page.setLinkDelegationPolicy(QtWebKit.QWebPage.DelegateAllLinks)
-    frame = page.mainFrame()
-    frame.javaScriptWindowObjectCleared.connect(self._bind_external)
     event.subscribe(self.CLOSE_EVENT, self._on_close)
     event.subscribe(self.WHEEL_EVENT, self._on_wheel)
     manager = page.networkAccessManager()
@@ -54,6 +52,16 @@ class BrowserWindow:
   def activate(self):
     self._view.activateWindow()
 
+  def bind_external(self, externalobj):
+    if self._external:
+      raise RuntimeError("External object already attached")
+    self._external = externalobj
+    def do_bind():
+      self._frame.addToJavaScriptWindowObject("external", self._external)
+    do_bind()
+    # object needs to be rebound on every subsequent pageload
+    self._frame.javaScriptWindowObjectCleared.connect(do_bind)
+
   def call_js_function(self, name, *args):
     name_str = json.dumps(name)
     args_str = ",".join(json.dumps(arg) for arg in args)
@@ -62,10 +70,6 @@ class BrowserWindow:
 
   def evaluate_js(self, expression):
     return self._view.page().mainFrame().evaluateJavaScript(expression)
-
-  def _bind_external(self):
-    frame = self._view.page().mainFrame()
-    frame.addToJavaScriptWindowObject("external", self._external)
 
   def fade(self, duration_ms):
     if (self._fade_animation_token):
@@ -110,7 +114,8 @@ class BrowserWindow:
     self._view.load(QtCore.QUrl(token_url))
 
   def _on_close(self):
-    self._external.arbiter_inform_local("FbDesktop.windowClosed", None)
+    if self._external:
+      self._external.arbiter_inform_local("FbDesktop.windowClosed", None)
 
   def _on_link_clicked(self, qurl):
     webbrowser.open(qurl.toString())
@@ -119,7 +124,8 @@ class BrowserWindow:
     # 120 is the standard wheel delta, but JS works better with 40 for some
     # reason. This is the same adjustment we use on Windows.
     adjusted_delta = delta * 40 / 120
-    self._external.arbiter_inform_local("FbDesktop.mouseWheel", adjusted_delta)
+    if self._external:
+      self._external.arbiter_inform_local("FbDesktop.mouseWheel", adjusted_delta)
 
   def refresh(self):
     token_url = network.add_access_token(self._starturl)

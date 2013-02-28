@@ -16,14 +16,14 @@ def init():
   global _app
   _app = QtGui.QApplication(sys.argv)
   # Needs to be set for media below
-  _app.setApplicationName("linuxmessenger")
+  _app.setApplicationName("fbmessenger")
 
   # These can't be local variables during play or they'll get GC'd.
   global _pling_media, _pling_audio, _pling_source
   _pling_media = Phonon.MediaObject()
   _pling_audio = Phonon.AudioOutput(Phonon.MusicCategory)
   Phonon.createPath(_pling_media, _pling_audio)
-  _pling_source = Phonon.MediaSource(path_from_root_dir("pling.wav"))
+  _pling_source = Phonon.MediaSource(resource_path("pling.wav"))
   _pling_media.setCurrentSource(_pling_source)
 
   # Handle Qt's debug output
@@ -42,8 +42,10 @@ def handle_qt_debug_message(level, message):
 def main_loop():
   sys.exit(_app.exec_())
 
-def path_from_root_dir(path):
-  return os.path.join(os.path.dirname(sys.argv[0]), path)
+def resource_path(resource_name):
+  this_module = sys.modules[__name__]
+  module_dir = os.path.dirname(this_module.__file__)
+  return os.path.join(module_dir, "resources", resource_name)
 
 def play_message_sound():
   _pling_media.stop()

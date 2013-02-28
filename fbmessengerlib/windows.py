@@ -1,8 +1,7 @@
-import application
-import browser
-import settings
-import event
-import external
+from . import application
+from . import browser
+from . import settings
+from . import event
 
 TOAST_WIDTH = 330
 # Used for toast and chat window positioning
@@ -23,17 +22,6 @@ def init():
   main_window.set_size(212, 640)
   main_window.set_title("Messenger")
   def main_window_moved():
-    external.arbiter_inform_all("FbDesktop.mainWindowMoved", None)
-  event.subscribe(main_window.MOVE_EVENT, main_window_moved)
-  # js doesn't listen for a separate resize event, so we use move here
-  event.subscribe(main_window.RESIZE_EVENT, main_window_moved)
-  def main_window_activated():
-    external.arbiter_inform_all("FbDesktop.mainWindowActivated", None)
-  event.subscribe(main_window.ACTIVATE_EVENT, main_window_activated)
-  def main_window_deactivated():
-    external.arbiter_inform_all("FbDesktop.mainWindowDeactivated", None)
-  event.subscribe(main_window.DEACTIVATE_EVENT, main_window_deactivated)
-  def main_window_moved():
     settings.set_setting("MainWindowRectangle", main_window.get_rectangle())
   event.subscribe(main_window.MOVE_EVENT, main_window_moved)
   event.subscribe(main_window.CLOSE_EVENT, application.quit)
@@ -42,9 +30,6 @@ def init():
   global chat_window
   chat_window = browser.BrowserWindow(base_url + "/desktop/client/chat.php")
   chat_window.set_size(420, 340)
-  def chat_window_activated():
-    external.arbiter_inform_all("FbdChat.chatWindowActivated", None)
-  event.subscribe(chat_window.ACTIVATE_EVENT, chat_window_activated)
   def chat_window_moved():
     global _chat_rectangle
     _chat_rectangle = chat_window.get_rectangle()
