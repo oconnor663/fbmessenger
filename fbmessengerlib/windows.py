@@ -21,9 +21,10 @@ def init():
   main_window = browser.BrowserWindow(base_url + "/desktop/client/")
   main_window.set_size(212, 640)
   main_window.set_title("Messenger")
-  def main_window_moved():
+  def main_window_moved_or_resized():
     settings.set_setting("MainWindowRectangle", main_window.get_rectangle())
-  event.subscribe(main_window.MOVE_EVENT, main_window_moved)
+  event.subscribe(main_window.MOVE_EVENT, main_window_moved_or_resized)
+  event.subscribe(main_window.RESIZE_EVENT, main_window_moved_or_resized)
   event.subscribe(main_window.CLOSE_EVENT, application.quit)
   show_main_window()
 

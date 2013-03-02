@@ -49,11 +49,13 @@ def init():
   windows.toast_window.bind_external(External(windows.toast_window))
 
   ### main window JS events
-  def main_window_moved():
+  def main_window_moved_or_resized():
+    # js doesn't listen for a separate resize event
     arbiter_inform_all("FbDesktop.mainWindowMoved", None)
-  event.subscribe(windows.main_window.MOVE_EVENT, main_window_moved)
-  # js doesn't listen for a separate resize event, so we use move here
-  event.subscribe(windows.main_window.RESIZE_EVENT, main_window_moved)
+  event.subscribe(windows.main_window.MOVE_EVENT,
+                  main_window_moved_or_resized)
+  event.subscribe(windows.main_window.RESIZE_EVENT,
+                  main_window_moved_or_resized)
   def main_window_activated():
     arbiter_inform_all("FbDesktop.mainWindowActivated", None)
   event.subscribe(windows.main_window.ACTIVATE_EVENT, main_window_activated)
