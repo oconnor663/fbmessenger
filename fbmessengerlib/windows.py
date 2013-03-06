@@ -44,12 +44,17 @@ def init():
   toast_window.set_size(TOAST_WIDTH, 72)
   event.subscribe(settings.AUTH_CHANGED_EVENT, toast_window.hide)
 
+# The main window's position is saved whenever it is moved or resized, so we
+# restore it when the window is created.
 def show_main_window():
   saved_rectangle = settings.get_setting("MainWindowRectangle")
   if saved_rectangle:
     main_window.set_rectangle(*_fit_rectangle_to_desktop(*saved_rectangle))
   main_window.show()
 
+# The chat window is initially shown adjacent to the main window, bottom
+# aligned on the left (or right if not enough space). If moved or resized, the
+# position is remembered while the app is still running.
 def show_chat_window():
   if _chat_rectangle:
     rect = _chat_rectangle
@@ -66,6 +71,7 @@ def show_chat_window():
   chat_window.set_rectangle(*fittedrect)
   chat_window.show()
 
+# The toast shows in the bottom right of the screen.
 def _position_toast():
   x, y, width, height = toast_window.get_rectangle()
   dx, dy, dwidth, dheight = application.get_desktop_rectangle()
@@ -95,6 +101,14 @@ def show_toast():
   toast_window.show()
   _terrible_toast_height_hack()
 
+# If a window's saved position was from a larger monitor, for example, it could
+# be too large for the current screen. Ensure that the max size of the screen
+# is respected. Then bring the window fully onscreen if it's position isn't
+# inside the screen rectangle.
 def _fit_rectangle_to_desktop(x, y, width, height):
   dx, dy, dwidth, dheight = application.get_desktop_rectangle()
-  return (x, y, min(width, dwidth), min(height, dheight))
+  width = min(width, dwidth)
+  height = min(height, dheight)
+  x = max(dx, min(dx + dwidth - width, x))
+  y = max(dy, min(dy + dheight - height, y))
+  return (x, y, width, height)
