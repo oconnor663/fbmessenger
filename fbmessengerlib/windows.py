@@ -103,12 +103,14 @@ def show_toast():
 
 # If a window's saved position was from a larger monitor, for example, it could
 # be too large for the current screen. Ensure that the max size of the screen
-# is respected. Then bring the window fully onscreen if it's position isn't
-# inside the screen rectangle.
+# is respected, leaving a buffer for window frames which can't be detected
+# reliably. Then bring the window fully onscreen if it's position isn't inside
+# the screen rectangle.
 def _fit_rectangle_to_desktop(x, y, width, height):
+  window_frame_buffer = 50
   dx, dy, dwidth, dheight = application.get_desktop_rectangle()
-  width = min(width, dwidth)
-  height = min(height, dheight)
+  width = min(width, dwidth - window_frame_buffer)
+  height = min(height, dheight - window_frame_buffer)
   x = max(dx, min(dx + dwidth - width, x))
   y = max(dy, min(dy + dheight - height, y))
   return (x, y, width, height)
