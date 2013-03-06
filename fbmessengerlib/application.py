@@ -33,7 +33,7 @@ def init():
   signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 def get_desktop_rectangle():
-  g = _app.desktop().geometry()
+  g = _app.desktop().availableGeometry()
   return (g.x(), g.y(), g.width(), g.height())
 
 def handle_qt_debug_message(level, message):
