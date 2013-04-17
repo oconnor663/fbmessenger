@@ -16,6 +16,6 @@ license=('BSD')
 md5sums=('SKIP')
 
 package(){
-  cd "$startdir/src/linuxmessenger"
+  cd "$srcdir/linuxmessenger"
   python setup.py install --root="$pkgdir"
 }
