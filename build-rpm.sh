@@ -15,5 +15,5 @@ if [ ! -e "$RPMBUILD_DIR"  ]; then
     exit 1
 fi
 
-wget -O $RPMBUILD_DIR/SOURCES/master.zip https://github.com/oconnor663/linuxmessenger/archive/master.zip
-rpmbuild -ba linuxmessenger.spec
+curl -Lo $RPMBUILD_DIR/SOURCES/master.zip https://github.com/oconnor663/linuxmessenger/archive/master.zip
+rpmbuild -ba fbmessenger.spec
