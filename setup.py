@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 
-from distutils.core import setup
+from setuptools import setup
 
 setup(name="fbmessenger",
       version="0.1.0",
