@@ -15,7 +15,7 @@ source=('git://github.com/oconnor663/linuxmessenger.git')
 license=('BSD')
 md5sums=('SKIP')
 
-package(){
+package() {
   cd "$srcdir/linuxmessenger"
   python setup.py install --root="$pkgdir"
 }
