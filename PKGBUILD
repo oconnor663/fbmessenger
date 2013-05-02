@@ -17,5 +17,5 @@ md5sums=('SKIP')
 
 package() {
   cd "$srcdir/linuxmessenger"
-  python setup.py install --root="$pkgdir"
+  python3 setup.py install --root="$pkgdir"
 }
