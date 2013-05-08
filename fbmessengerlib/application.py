@@ -52,4 +52,8 @@ def play_message_sound():
   _pling_media.play()
 
 def quit():
-  _app.quit()
+  # Don't bother with _app.exit(). Other parts of the app may still use Qt
+  # objects while they're being cleaned up, which causes scary errors
+  # (https://github.com/oconnor663/linuxmessenger/issues/33). Just exit the
+  # process directly.
+  sys.exit()
