@@ -11,4 +11,5 @@ setup(name="fbmessenger",
       url="https://github.com/oconnor663/linuxmessenger",
       packages=['fbmessengerlib'],
       package_data={'fbmessengerlib': ['resources/*']},
+      data_files=[('share/applications', ['fbmessenger.desktop'])],
       scripts=['fbmessenger'])
