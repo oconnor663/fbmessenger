@@ -28,6 +28,8 @@ class BrowserWindow:
     self._fade_animation_token = None
     page = self._view.page()
     self._frame = page.mainFrame()
+    zoom = float(settings.get_setting("Zoom", default=1))
+    self._frame.setZoomFactor(zoom)
     page.linkClicked.connect(self._on_link_clicked)
     page.setLinkDelegationPolicy(QtWebKit.QWebPage.DelegateAllLinks)
     event.subscribe(self.CLOSE_EVENT, self._on_close)
