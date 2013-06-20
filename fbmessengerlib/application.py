@@ -32,9 +32,8 @@ def init():
   # Enable quitting with ctrl-c
   signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-def get_desktop_rectangle():
-  g = _app.desktop().availableGeometry()
-  return (g.x(), g.y(), g.width(), g.height())
+def get_qt_application():
+  return _app
 
 def handle_qt_debug_message(level, message):
   print("Qt debug:", message.decode('utf-8'))

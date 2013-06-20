@@ -49,7 +49,8 @@ def init():
 def show_main_window():
   saved_rectangle = settings.get_setting("MainWindowRectangle")
   if saved_rectangle:
-    main_window.set_rectangle(*_fit_rectangle_to_desktop(*saved_rectangle))
+    main_window.set_rectangle(*saved_rectangle)
+  main_window.fit_to_desktop()
   main_window.show()
 
 # The chat window is initially shown adjacent to the main window, bottom
@@ -59,7 +60,7 @@ def show_chat_window():
   if _chat_rectangle:
     rect = _chat_rectangle
   else:
-    desk_x, desk_y, desk_width, desk_height = application.get_desktop_rectangle()
+    desk_x, desk_y, desk_width, desk_height = main_window.get_desktop_rectangle()
     main_x, main_y, main_width, main_height = main_window.get_rectangle()
     chat_x, chat_y, chat_width, chat_height = chat_window.get_rectangle()
     default_x = main_x - chat_width - _margin
@@ -67,14 +68,14 @@ def show_chat_window():
       default_x = main_x + main_width + _margin
     default_y = main_y + main_height - chat_height
     rect = (default_x, default_y, chat_width, chat_height)
-  fittedrect = _fit_rectangle_to_desktop(*rect)
-  chat_window.set_rectangle(*fittedrect)
+  chat_window.set_rectangle(*rect)
+  chat_window.fit_to_desktop()
   chat_window.show()
 
 # The toast shows in the bottom right of the screen.
 def _position_toast():
   x, y, width, height = toast_window.get_rectangle()
-  dx, dy, dwidth, dheight = application.get_desktop_rectangle()
+  dx, dy, dwidth, dheight = main_window.get_desktop_rectangle()
   newx = dx + dwidth - width - _margin
   newy = dy + dheight - height - _margin
   toast_window.set_position(newx, newy)
@@ -100,17 +101,3 @@ def show_toast():
   _position_toast()
   toast_window.show()
   _terrible_toast_height_hack()
-
-# If a window's saved position was from a larger monitor, for example, it could
-# be too large for the current screen. Ensure that the max size of the screen
-# is respected, leaving a buffer for window frames which can't be detected
-# reliably. Then bring the window fully onscreen if it's position isn't inside
-# the screen rectangle.
-def _fit_rectangle_to_desktop(x, y, width, height):
-  window_frame_buffer = 50
-  dx, dy, dwidth, dheight = application.get_desktop_rectangle()
-  width = min(width, dwidth - window_frame_buffer)
-  height = min(height, dheight - window_frame_buffer)
-  x = max(dx, min(dx + dwidth - width, x))
-  y = max(dy, min(dy + dheight - height, y))
-  return (x, y, width, height)

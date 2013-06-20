@@ -9,6 +9,7 @@ from PyQt4 import QtNetwork
 from . import settings
 from . import event
 from . import network
+from . import application
 
 class BrowserWindow:
   _instances = []
@@ -86,6 +87,24 @@ class BrowserWindow:
         self._view.setWindowOpacity(1 - float(t_ms) / duration_ms)
     self._fade_animation_token = event.run_on_main_thread(
         _fade_callback, repeating=True, delay_ms=1000./60)
+
+  def fit_to_desktop(self):
+    # Windows frames vary in width, and different desktops will force them on
+    # screen in different ways. The simples thing to do is to just leave a
+    # margin for them, so that fullscreen windows don't get clipped off.
+    margin = 50
+    x, y, width, height = self.get_rectangle()
+    dx, dy, dwidth, dheight = self.get_desktop_rectangle()
+    width = min(width, dwidth - margin)
+    height = min(height, dheight - margin)
+    x = max(dx, min(dx + dwidth - width, x))
+    y = max(dy, min(dy + dheight - height, y))
+    self.set_rectangle(x, y, width, height)
+
+  def get_desktop_rectangle(self):
+    qapp = application.get_qt_application()
+    rect = qapp.desktop().availableGeometry(self._view)
+    return (rect.x(), rect.y(), rect.width(), rect.height())
 
   def get_rectangle(self):
     g = self._view.geometry()
