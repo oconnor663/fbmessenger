@@ -89,11 +89,10 @@ class BrowserWindow:
         _fade_callback, repeating=True, delay_ms=1000./60)
 
   def fit_to_desktop(self):
-    margin = 50
     x, y, width, height = self.get_rectangle()
     dx, dy, dwidth, dheight = self.get_desktop_rectangle()
-    width = min(width, dwidth - margin)
-    height = min(height, dheight - margin)
+    width = min(width, dwidth)
+    height = min(height, dheight)
     x = max(dx, min(dx + dwidth - width, x))
     y = max(dy, min(dy + dheight - height, y))
     self.set_rectangle(x, y, width, height)
@@ -103,8 +102,9 @@ class BrowserWindow:
     rect = qapp.desktop().availableGeometry(self._view)
     return (rect.x(), rect.y(), rect.width(), rect.height())
 
+  # Gets the dimensions of the whole window, including the frame.
   def get_rectangle(self):
-    g = self._view.geometry()
+    g = self._view.frameGeometry()
     return (g.x(), g.y(), g.width(), g.height())
 
   def _handle_ssl_error(self, reply, errors):
@@ -152,8 +152,19 @@ class BrowserWindow:
   def set_position(self, x, y):
     self._view.move(x, y)
 
+  # Sets the dimensions of the whole window, including the frame.
   def set_rectangle(self, x, y, width, height):
-    self._view.setGeometry(x, y, width, height)
+    frame = self._view.frameGeometry()
+    inner = self._view.geometry()
+    newx = x - (frame.x() - inner.x())
+    print("(frame.x() - inner.x())", (frame.x() - inner.x()))
+    newy = y - (frame.y() - inner.y())
+    print("(frame.y() - inner.y())", (frame.y() - inner.y()))
+    newheight = height - (frame.height() - inner.height())
+    print("(frame.height() - inner.height())", (frame.height() - inner.height()))
+    newwidth = width - (frame.width() - inner.width())
+    print("(frame.width() - inner.width())", (frame.width() - inner.width()))
+    self._view.setGeometry(newx, newy, newheight, newwidth)
 
   def set_size(self, width, height):
     self._view.resize(width, height)
