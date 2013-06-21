@@ -1,5 +1,6 @@
 import threading
 import random
+import os
 
 from . import mosquitto
 from . import settings
@@ -27,8 +28,13 @@ def init():
   _client.on_connect = _on_connect
   _client.on_disconnect = _on_disconnect
   _client.on_message = _on_message
-  # TODO(jacko): do something reasonable with this certs file
-  _client.tls_set(application.resource_path("certs_FIXME.pem"))
+
+  # Find the system certs file, or fall back to our own copy.
+  cert_path = "/etc/ssl/certs/ca-certificates.crt"
+  if not os.path.exists(cert_path):
+    cert_path = application.resource_path("ca-certificates-fallback.crt")
+  _client.tls_set(cert_path)
+
   event.subscribe(settings.AUTH_CHANGED_EVENT, _force_reconnect)
   event.subscribe(network.NETWORK_CHANGED_EVENT, _force_reconnect)
   _BackgroundThread().start()
