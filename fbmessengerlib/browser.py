@@ -55,6 +55,10 @@ class BrowserWindow:
   def activate(self):
     self._view.activateWindow()
 
+  def alert(self):
+    qapp = application.get_qt_application()
+    qapp.alert(self._view)
+
   def bind_external(self, externalobj):
     if self._external:
       raise RuntimeError("External object already attached")
