@@ -2,5 +2,5 @@
 Name=Facebook Messenger
 Exec=fbmessenger
 Type=Application
-Icon=/usr/share/fbmessenger/icon.png
+Icon=fbmessenger
 Categories=Network

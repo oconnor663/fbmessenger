@@ -14,7 +14,7 @@ setup(
     package_data={'fbmessengerlib': ['resources/*']},
     data_files=[
       ('share/applications', ['fbmessenger.desktop']),
-      ('share/fbmessenger', ['icon.png']),
+      ('share/pixmaps', ['fbmessenger.png']),
       ],
     scripts=['fbmessenger'],
     )
