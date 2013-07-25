@@ -4,6 +4,6 @@ Architecture: all
 Depends: python3, python3-pyqt4, python3-pyqt4.phonon
 Maintainer: Jack O'Connor <oconnor663@gmail.com>
 Homepage: https://github.com/oconnor663/linuxmessenger
-Description: Facebook Messenger for Linux
+Description: Facebook Messenger
  A linux clone of Facebook Messenger for Windows.
- Most of the important features work.
+ Most of the important features work!
