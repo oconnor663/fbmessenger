@@ -87,6 +87,7 @@ class BrowserWindow:
       t_ms = time.time() * 1000 - start_ms
       if t_ms > duration_ms or t_ms < 0:
         self.hide()
+        self._fade_animation_token.stop()
       else:
         self._view.setWindowOpacity(1 - float(t_ms) / duration_ms)
     self._fade_animation_token = event.run_on_main_thread(
