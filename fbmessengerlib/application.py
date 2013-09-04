@@ -10,7 +10,13 @@ import signal
 import os.path
 from PyQt4 import QtCore
 from PyQt4 import QtGui
-from PyQt4.phonon import Phonon
+
+try:
+  from PyQt4.phonon import Phonon
+  has_phonon = True
+except:
+  # If we don't have phonon, we fall back to QSound. Doesn't work on Linux.
+  has_phonon = False
 
 def init():
   global _app
@@ -19,12 +25,16 @@ def init():
   _app.setApplicationName("fbmessenger")
 
   # These can't be local variables during play or they'll get GC'd.
-  global _pling_media, _pling_audio, _pling_source
-  _pling_media = Phonon.MediaObject()
-  _pling_audio = Phonon.AudioOutput(Phonon.MusicCategory)
-  Phonon.createPath(_pling_media, _pling_audio)
-  _pling_source = Phonon.MediaSource(resource_path("pling.wav"))
-  _pling_media.setCurrentSource(_pling_source)
+  if has_phonon:
+    global _pling_media, _pling_audio, _pling_source
+    _pling_media = Phonon.MediaObject()
+    _pling_audio = Phonon.AudioOutput(Phonon.MusicCategory)
+    Phonon.createPath(_pling_media, _pling_audio)
+    _pling_source = Phonon.MediaSource(resource_path("pling.wav"))
+    _pling_media.setCurrentSource(_pling_source)
+  else:
+    global _pling_qsound
+    _pling_qsound = QtGui.QSound(resource_path("pling.wav"))
 
   # Handle Qt's debug output
   QtCore.qInstallMsgHandler(handle_qt_debug_message)
@@ -53,8 +63,11 @@ def resource_path(resource_name):
   return os.path.join(module_dir, "resources", resource_name)
 
 def play_message_sound():
-  _pling_media.stop()
-  _pling_media.play()
+  if has_phonon:
+    _pling_media.stop()
+    _pling_media.play()
+  else:
+    _pling_qsound.play()
 
 def quit():
   # Don't bother with _app.exit(). Other parts of the app may still use Qt
