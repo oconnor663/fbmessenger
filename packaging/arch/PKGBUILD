@@ -2,20 +2,20 @@
 pkgname=fbmessenger-git
 pkgver=0
 pkgver() {
-  cd linuxmessenger
+  cd fbmessenger
   echo $(git rev-list --count master).$(git rev-parse --short master)
 }
 pkgrel=1
 pkgdesc="Facebook messenger client"
 arch=('any')
-url="https://github.com/oconnor663/linuxmessenger"
+url="https://github.com/oconnor663/fbmessenger"
 depends=('pyqt' 'phonon')
 makedepends=('git' 'python-distribute')
-source=('git://github.com/oconnor663/linuxmessenger.git')
+source=('git://github.com/oconnor663/fbmessenger.git')
 license=('BSD')
 md5sums=('SKIP')
 
 package() {
-  cd "$srcdir/linuxmessenger"
+  cd "$srcdir/fbmessenger"
   python3 setup.py install --root="$pkgdir"
 }

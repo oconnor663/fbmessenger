@@ -1,12 +1,10 @@
-##Facebook Messenger for Linux
+![screenshot](https://github.com/oconnor663/fbmessenger/raw/master/resources/screenshot.png)
 
-![screenshot](https://github.com/oconnor663/linuxmessenger/raw/master/screenshot.png)
-
-A Linux clone of [Facebook Messenger for
+A PyQt clone of [Facebook Messenger for
 Windows](https://www.facebook.com/about/messenger). It gives you a chat
 sidebar, chat popup windows, and notification toasts outside of the browser.
 
-You can launch the app with `./fbmessenger`. There are packaging scripts
+You can launch the app with `./run.sh`. There are packaging scripts
 included: `build-debian.sh`, `build-rpm.sh`, and `PKGBUILD` for Arch. Ubuntu
 users can install from a PPA by following [the instructions
 here](http://www.webupd8.org/2013/04/fbmessenger-stand-alone-facebook.html)
@@ -20,5 +18,5 @@ to make the fonts 20% bigger.
 ####Dependencies
 * Python 3
 * PyQt4 for Python 3
-* Phonon (part of Qt4 but often packaged separately)
+* Phonon (optional, for sound on Linux)
 * setuptools for Python 3

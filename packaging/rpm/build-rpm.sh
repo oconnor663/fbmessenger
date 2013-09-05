@@ -15,5 +15,7 @@ if [ ! -e "$RPMBUILD_DIR"  ]; then
     exit 1
 fi
 
-curl -Lo $RPMBUILD_DIR/SOURCES/master.zip https://github.com/oconnor663/linuxmessenger/archive/master.zip
+curl -Lo $RPMBUILD_DIR/SOURCES/master.zip https://github.com/oconnor663/fbmessenger/archive/master.zip
+script_dir=`dirname $BASH_SOURCE`
+cd "$script_dir"
 rpmbuild -ba fbmessenger.spec

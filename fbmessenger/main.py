@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
 # This import must be first.
-from fbmessengerlib import application
+from . import application
 
-from fbmessengerlib import mqtt
-from fbmessengerlib import windows
-from fbmessengerlib import external
-from fbmessengerlib import network
+from . import mqtt
+from . import windows
+from . import external
+from . import network
 
 def main():
   application.init()
