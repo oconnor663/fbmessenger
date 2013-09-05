@@ -1,0 +1,11 @@
+Arch users can install fbmessenger through the AUR, using the package named
+"fbmessenger-git". See https://aur.archlinux.org/packages/fbmessenger-git/
+
+To build the package here, just run:
+
+  makepkg
+
+Note that this will pull down fresh sources from GitHub, rather than using
+local sources. To build with local changes, do something like this:
+
+  mkdir src ; ln -s ../../../ src/fbmessenger ; makepkg -e

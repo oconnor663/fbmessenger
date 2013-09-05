@@ -1,0 +1,16 @@
+To install on Mac OS X, you'll want to use Homebrew. http://brew.sh/
+
+If you don't already have it, install it from their site. The instructions will
+tell you to run something like this:
+
+  ruby -e "$(curl -fsSL https://raw.github.com/mxcl/homebrew/go)"
+
+Now you can install fbmessenger and it's dependencies. This step will take
+several minutes. Note that python3 won't get installed automatically for you
+(not sure why), so you have to install it explicitly first:
+
+  brew install python3 && brew install ./fbmessenger.rb
+
+Now you can launch fbmessenger from the command line:
+
+  fbmessenger
