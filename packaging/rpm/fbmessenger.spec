@@ -22,14 +22,14 @@ python3 setup.py install --root="$RPM_BUILD_ROOT"
 
 %files
 /usr/bin/fbmessenger
-/usr/lib/python3*/site-packages/fbmessenger-0.1.0-py3*.egg-info
+/usr/lib/python3*/site-packages/fbmessenger-%VERSION-py3*.egg-info
 /usr/lib/python3*/site-packages/fbmessenger/*
 /usr/share/applications/fbmessenger.desktop
 /usr/share/pixmaps/fbmessenger.png
 %doc README.md LICENSE
 
 %changelog
-* Wed Sep 04 2013 jacko <jacko@fb.com> - 0.1.0-1
+* Thu Sep 05 2013 jacko <oconnor663@gmail.com> - 0.2.0-1
 - Directory move and path changes
 * Wed Apr 17 2013 shuff <shuff@fb.com> - 0.1.0-1
 - RPM spec Creation!
