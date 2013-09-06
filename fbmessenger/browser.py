@@ -144,6 +144,12 @@ class BrowserWindow:
       self._external.arbiter_inform_local("FbDesktop.windowClosed", None)
 
   def _on_link_clicked(self, qurl):
+    # shortcircuit this if it's just a # tag for the current page
+    def first_part(qurl):
+      return qurl.toString().split('#')[0]
+    if first_part(self._view.url()) == first_part(qurl):
+      return
+
     webbrowser.open(qurl.toString())
 
   def _on_wheel(self, delta):
