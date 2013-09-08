@@ -12,4 +12,4 @@ sed -i s/'{VERSION}'/"$version"/ "$tmpdir/DEBIAN/control"
 
 (cd "$script_dir/../.."; python3 setup.py install --root="$tmpdir")
 
-dpkg-deb --build "$tmpdir" "fbmessenger-$version.deb"
+fakeroot dpkg-deb --build "$tmpdir" "fbmessenger-$version.deb"
