@@ -92,6 +92,9 @@ class BrowserWindow:
                 self._fade_animation_token.stop()
             else:
                 self._view.setWindowOpacity(1 - float(t_ms) / duration_ms)
+                # The new opacity value doesn't seem to show in Qt5 unless we
+                # manually redraw the window.
+                self._view.repaint()
         self._fade_animation_token = event.run_on_main_thread(
                 _fade_callback, repeating=True, delay_ms=1000./60)
 
