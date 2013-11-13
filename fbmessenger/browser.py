@@ -226,7 +226,7 @@ class MessengerWebView(QtWebKitWidgets.QWebView):
 
     def wheelEvent(self, event_obj):
         QtWebKitWidgets.QWebView.wheelEvent(self, event_obj)
-        event.inform(self._bw.WHEEL_EVENT, event_obj.delta())
+        event.inform(self._bw.WHEEL_EVENT, event_obj.angleDelta().y())
 
 class SettingsBasedCookieJar(QtNetwork.QNetworkCookieJar):
     def __init__(self):
