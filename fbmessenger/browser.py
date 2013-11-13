@@ -40,8 +40,9 @@ class BrowserWindow:
         manager.setCookieJar(_cookie_jar_singleton)
         manager.sslErrors.connect(self._handle_ssl_error)
         cache = QtNetwork.QNetworkDiskCache()
+        # The cache is not compatible across Qt4 and Qt5. Use a versioned path.
         cache.setCacheDirectory(
-                path.join(settings.SETTINGS_DIR, "cache"))
+                path.join(settings.SETTINGS_DIR, "cache/qt5"))
         manager.setCache(cache)
         websettings = page.settings()
         websettings.setAttribute(
