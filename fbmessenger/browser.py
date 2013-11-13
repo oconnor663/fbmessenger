@@ -2,9 +2,10 @@ import json
 import time
 import webbrowser
 from os import path
-from PyQt4 import QtCore
-from PyQt4 import QtWebKit
-from PyQt4 import QtNetwork
+from PyQt5 import QtCore
+from PyQt5 import QtNetwork
+from PyQt5 import QtWebKit
+from PyQt5 import QtWebKitWidgets
 
 from . import settings
 from . import event
@@ -32,7 +33,7 @@ class BrowserWindow:
         zoom = float(settings.get_setting("Zoom", default=1))
         self._frame.setZoomFactor(zoom)
         page.linkClicked.connect(self._on_link_clicked)
-        page.setLinkDelegationPolicy(QtWebKit.QWebPage.DelegateAllLinks)
+        page.setLinkDelegationPolicy(QtWebKitWidgets.QWebPage.DelegateAllLinks)
         event.subscribe(self.CLOSE_EVENT, self._on_close)
         event.subscribe(self.WHEEL_EVENT, self._on_wheel)
         manager = page.networkAccessManager()
@@ -197,33 +198,33 @@ class BrowserWindow:
 # The only way to capture events like move and close is to subclass the
 # QWebView and override these methods. We do as little as possible here,
 # though, for abstraction's sake.
-class MessengerWebView(QtWebKit.QWebView):
+class MessengerWebView(QtWebKitWidgets.QWebView):
     def __init__(self, browserwindow):
-        QtWebKit.QWebView.__init__(self)
+        QtWebKitWidgets.QWebView.__init__(self)
         self._bw = browserwindow
 
     def closeEvent(self, event_obj):
-        QtWebKit.QWebView.closeEvent(self, event_obj)
+        QtWebKitWidgets.QWebView.closeEvent(self, event_obj)
         event.inform(self._bw.CLOSE_EVENT)
 
     def focusInEvent(self, event_obj):
-        QtWebKit.QWebView.focusInEvent(self, event_obj)
+        QtWebKitWidgets.QWebView.focusInEvent(self, event_obj)
         event.inform(self._bw.ACTIVATE_EVENT)
 
     def focusOutEvent(self, event_obj):
-        QtWebKit.QWebView.focusOutEvent(self, event_obj)
+        QtWebKitWidgets.QWebView.focusOutEvent(self, event_obj)
         event.inform(self._bw.DEACTIVATE_EVENT)
 
     def moveEvent(self, event_obj):
-        QtWebKit.QWebView.moveEvent(self, event_obj)
+        QtWebKitWidgets.QWebView.moveEvent(self, event_obj)
         event.inform(self._bw.MOVE_EVENT)
 
     def resizeEvent(self, event_obj):
-        QtWebKit.QWebView.resizeEvent(self, event_obj)
+        QtWebKitWidgets.QWebView.resizeEvent(self, event_obj)
         event.inform(self._bw.RESIZE_EVENT)
 
     def wheelEvent(self, event_obj):
-        QtWebKit.QWebView.wheelEvent(self, event_obj)
+        QtWebKitWidgets.QWebView.wheelEvent(self, event_obj)
         event.inform(self._bw.WHEEL_EVENT, event_obj.delta())
 
 class SettingsBasedCookieJar(QtNetwork.QNetworkCookieJar):

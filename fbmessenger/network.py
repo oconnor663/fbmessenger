@@ -1,5 +1,5 @@
 import threading
-from PyQt4 import QtNetwork
+from PyQt5 import QtNetwork
 
 try:
     # python3
