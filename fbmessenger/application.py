@@ -16,7 +16,7 @@ def init():
     _pling_qsound = QtMultimedia.QSound(resource_path("pling.wav"))
 
     # Handle Qt's debug output
-    QtCore.qInstallMsgHandler(handle_qt_debug_message)
+    QtCore.qInstallMessageHandler(handle_qt_debug_message)
 
     # Enable quitting with ctrl-c
     signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -24,14 +24,8 @@ def init():
 def get_qt_application():
     return _app
 
-def handle_qt_debug_message(level, message_bytes):
-    ignored_messages = [
-            # QtWebKit spams this and no one knows why :(
-            "QFont::setPixelSize: Pixel size <= 0 (0)",
-    ]
-    message = message_bytes.decode('utf-8')
-    if message not in ignored_messages:
-        print("Qt debug:", message)
+def handle_qt_debug_message(level, context, message):
+    print("Qt debug: {0}:{1}: {2}".format(context.file, context.line, message))
 
 def main_loop():
     sys.exit(_app.exec_())
