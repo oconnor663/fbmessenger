@@ -4,7 +4,7 @@ import os
 from setuptools import setup
 
 with open("packaging/VERSION") as version_file:
-  version = version_file.read().strip()
+    version = version_file.read().strip()
 
 setup(
     name="fbmessenger",
@@ -21,4 +21,4 @@ setup(
       ('share/pixmaps', ['resources/fbmessenger.png']),
       ],
     scripts=['bin/fbmessenger'],
-    )
+)

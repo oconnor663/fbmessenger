@@ -9,13 +9,13 @@ from . import external
 from . import network
 
 def main():
-  application.init()
-  network.init()
-  mqtt.init()
-  windows.init()
-  external.init()
+    application.init()
+    network.init()
+    mqtt.init()
+    windows.init()
+    external.init()
 
-  application.main_loop()
+    application.main_loop()
 
 if __name__ == "__main__":
-  main()
+    main()
