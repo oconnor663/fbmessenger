@@ -1,6 +1,7 @@
 import webbrowser
 import json
 import inspect
+import time
 from PyQt4 import QtCore
 
 from . import network
@@ -67,6 +68,7 @@ def init():
 
     ### chat window js events
     def chat_window_activated():
+        bump_last_active_time()
         arbiter_inform_all("FbdChat.chatWindowActivated", None)
     event.subscribe(windows.chat_window.ACTIVATE_EVENT, chat_window_activated)
 
@@ -81,6 +83,20 @@ def init():
 def arbiter_inform_all(eventname, payload):
     for externalobj in External._instances:
         externalobj.arbiter_inform_local(eventname, payload)
+
+# Detecting user input to determine idleness isn't possible in a portable way.
+# We use a number of different events as a substitute for input:
+# - chat window activated
+# - chat tabs switched (via the 'open_threads' setting)
+# - user starts typing (via the '/typing' mqtt topic)
+_last_active_time = time.time()
+def bump_last_active_time():
+    global _last_active_time
+    _last_active_time = time.time()
+
+def is_active():
+    idle_limit = 5 * 60 # 5 minutes
+    return time.time() - _last_active_time < idle_limit
 
 class External(QtCore.QObject):
     _instances = []
@@ -177,12 +193,9 @@ class External(QtCore.QObject):
     def invalidateAccessToken(self):
         settings.set_user_info('', '')
 
-    # Idle detection is hard to do in a portable way. systemd and ConsoleKit
-    # both provide idle signals, and we could also call the XScreenSaver
-    # libraries.  Not worth the complexity.
     @external_decorator(result=bool)
     def isIdle(self):
-        return False
+        return not is_active()
 
     @external_decorator(result=bool)
     def isMqttConnected(self):
@@ -247,6 +260,13 @@ class External(QtCore.QObject):
 
     @external_decorator(str, str)
     def setSetting(self, key, value):
+        if key == "open_threads":
+            # This setting is changed whenever the user opens a new chat tab,
+            # or when the chat window is opened from being closed (this doesn't
+            # matter, because it's not foregrounded), but not when a new tab is
+            # opened in a foregrounded window by receiving a new message, so it
+            # works for us as one signal of user activity.
+            bump_last_active_time()
         settings.set_setting(key, value)
 
     @external_decorator(str, str)
@@ -327,6 +347,8 @@ class External(QtCore.QObject):
 
     @external_decorator(str, str)
     def sendMessage(self, topic, message):
+        if topic == '/typing':
+            bump_last_active_time()
         mqtt.publish(topic, message)
 
     @external_decorator(str)
