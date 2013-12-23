@@ -13,6 +13,11 @@ MESSAGE_RECEIVED_EVENT = object()
 
 MQTT_URL = "orcart.facebook.com"
 MQTT_PORT = 443
+use_tls = True
+# Uncomment below to connect to MQTT on a devserver (Facebook internal).
+# MQTT_URL = your_devserver_here
+# MQTT_PORT = 8883
+# use_tls = False
 
 is_connected = False
 
@@ -29,11 +34,13 @@ def init():
     _client.on_disconnect = _on_disconnect
     _client.on_message = _on_message
 
-    # Find the system certs file, or fall back to our own copy.
-    cert_path = "/etc/ssl/certs/ca-certificates.crt"
-    if not os.path.exists(cert_path):
-        cert_path = application.resource_path("ca-certificates-fallback.crt")
-    _client.tls_set(cert_path)
+    if use_tls:
+        # Find the system certs file, or fall back to our own copy.
+        cert_path = "/etc/ssl/certs/ca-certificates.crt"
+        if not os.path.exists(cert_path):
+            cert_path = application.resource_path(
+                    "ca-certificates-fallback.crt")
+        _client.tls_set(cert_path)
 
     event.subscribe(settings.AUTH_CHANGED_EVENT, _force_reconnect)
     event.subscribe(network.NETWORK_CHANGED_EVENT, _force_reconnect)
