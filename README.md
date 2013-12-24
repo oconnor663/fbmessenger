@@ -15,9 +15,9 @@ here](http://www.webupd8.org/2013/04/fbmessenger-stand-alone-facebook.html)
 (thanks Alin Andrei). Arch users can [install from the
 AUR](https://aur.archlinux.org/packages/fbmessenger-git/).
 
-The configuration file is `~/.fbmessenger/settings.json`. Right now the only
-setting that users might want to mess with is `"Zoom"`; set a value like `1.2`
-to make the fonts 20% bigger.
+The configuration file is `~/.fbmessenger/config.py`. Right now the only
+setting that users might want to mess with is `Zoom`; set a value like
+`Zoom = 1.2` to make the fonts 20% bigger.
 
 ####Dependencies
 * Python 3
