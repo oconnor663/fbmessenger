@@ -7,13 +7,16 @@ sidebar, chat popup windows, and notification toasts outside of the browser.
 
 If you have all the dependencies, you can launch the app straight from this
 repository with `./run.sh`. After you install it, you can launch it with
-`fbmessenger`. There are packaging scripts included under `packaging/` for
-Linux (deb, rpm, arch) and Mac (brew). See the `README` files in there for
-installation instructions. You can also install with `python3 setup.py
-install`. Ubuntu users can install from a PPA by following [the instructions
+`fbmessenger`. Ubuntu users can install from a PPA by following [the
+instructions
 here](http://www.webupd8.org/2013/04/fbmessenger-stand-alone-facebook.html)
 (thanks Alin Andrei). Arch users can [install from the
-AUR](https://aur.archlinux.org/packages/fbmessenger-git/).
+AUR](https://aur.archlinux.org/packages/fbmessenger-git/).  There are packaging
+scripts included under `packaging/` for Linux (Debian/Ubuntu in `deb`, Red
+Hat/Fedora in `rpm`, and Arch) and OS X (using the Homebrew package manager).
+See the `README` files in packaging subdirectories for more specific
+instructions. You can also install with `sudo python3 setup.py install`, but
+that makes it hard to uninstall, so prefer to use the packaging scripts.
 
 The configuration file is `~/.fbmessenger/config.py`. Right now the only
 setting that users might want to mess with is `Zoom`; set a value like
