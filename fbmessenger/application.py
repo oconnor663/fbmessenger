@@ -6,6 +6,7 @@ for module in ("QString", "QUrl"):
     sip.setapi(module, 2)
 
 import sys
+import os
 import signal
 import os.path
 from PyQt4 import QtCore
@@ -72,6 +73,6 @@ def play_message_sound():
 def quit():
     # Don't bother with _app.exit(). Other parts of the app may still use Qt
     # objects while they're being cleaned up, which causes scary errors
-    # (https://github.com/oconnor663/fbmessenger/issues/33). Just exit the
-    # process directly.
-    sys.exit()
+    # (https://github.com/oconnor663/fbmessenger/issues/33). Even sys.exit() is
+    # has the potential to let threads spin forever. Just do a hard os exit.
+    os._exit(0)
