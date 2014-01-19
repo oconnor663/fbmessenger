@@ -2,6 +2,7 @@ from . import application
 from . import browser
 from . import settings
 from . import event
+from PyQt4 import QtCore, QtGui
 
 TOAST_WIDTH = 330
 # Used for toast and chat window positioning
@@ -42,6 +43,41 @@ def init():
     # height of one toast -- this will be overridden but just in case
     toast_window.set_size(TOAST_WIDTH, 72)
     event.subscribe(settings.AUTH_CHANGED_EVENT, toast_window.hide)
+
+    # check if system tray should be enabled
+    if settings.get_setting("SystemTray", default=False):
+        create_sys_tray()
+
+def create_sys_tray():
+    global sysTray
+    sysIcon = QtGui.QIcon(application.resource_path("fbmessenger.png"))
+    sysTray = QtGui.QSystemTrayIcon(sysIcon, application.get_qt_application())
+    sysTray.activated.connect(on_sys_tray_activated)
+
+    sysTrayMenu = QtGui.QMenu()
+
+    global showHide
+    showHide = sysTrayMenu.addAction("Hide")
+    showHide.triggered.connect(on_sys_show_hide_activated)
+    quit = sysTrayMenu.addAction("Quit")
+    quit.triggered.connect(application.quit)
+    sysTray.setContextMenu(sysTrayMenu)
+    sysTray.setVisible(True)
+
+def on_sys_tray_activated(reason):
+    if reason == QtGui.QSystemTrayIcon.Trigger or reason == QtGui.QSystemTrayIcon.DoubleClick:
+        show_or_hide_main_window()
+
+def on_sys_show_hide_activated():
+    show_or_hide_main_window()
+
+def show_or_hide_main_window():
+    if main_window.is_visible():
+        main_window.hide()
+        showHide.setText("Show")
+    else:
+        main_window.show()
+        showHide.setText("Hide")
 
 # The main window's position is saved whenever it is moved or resized, so we
 # restore it when the window is created.

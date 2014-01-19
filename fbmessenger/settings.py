@@ -59,6 +59,9 @@ _default_user_config = '''\
 # make text appear 20% bigger, set the Zoom variable:
 #
 # Zoom = 1.2
+#
+# To enable system tray icon set SystemTray variable to True
+SystemTray = False
 '''
 
 def _read_user_config():
