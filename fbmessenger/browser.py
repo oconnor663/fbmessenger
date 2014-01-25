@@ -13,15 +13,18 @@ from . import application
 
 class BrowserWindow:
     _instances = []
+    _closable = False
 
-    def __init__(self, starturl):
+    def __init__(self, starturl, closable):
         self.ACTIVATE_EVENT = object()
+        self.TRAY_EVENT = object()
         self.CLOSE_EVENT = object()
         self.DEACTIVATE_EVENT = object()
         self.MOVE_EVENT = object()
         self.RESIZE_EVENT = object()
         self.WHEEL_EVENT = object()
 
+        self._closable = closable
         self._instances.append(self)
         self._starturl = starturl
         self._view = MessengerWebView(self)
@@ -203,8 +206,12 @@ class MessengerWebView(QtWebKit.QWebView):
         self._bw = browserwindow
 
     def closeEvent(self, event_obj):
-        QtWebKit.QWebView.closeEvent(self, event_obj)
-        event.inform(self._bw.CLOSE_EVENT)
+        if self._bw._closable or not settings.get_setting("SystemTray", default=False):
+            QtWebKit.QWebView.closeEvent(self, event_obj)
+            event.inform(self._bw.CLOSE_EVENT)
+        else:
+            event.inform(self._bw.TRAY_EVENT)
+            event_obj.ignore()
 
     def focusInEvent(self, event_obj):
         QtWebKit.QWebView.focusInEvent(self, event_obj)
