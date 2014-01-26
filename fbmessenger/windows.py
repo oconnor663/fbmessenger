@@ -27,7 +27,7 @@ def init():
     event.subscribe(main_window.RESIZE_EVENT, main_window_moved_or_resized)
     event.subscribe(main_window.TRAY_EVENT, show_or_hide_main_window)
     event.subscribe(main_window.CLOSE_EVENT, application.quit)
-    show_main_window()
+    init_main_window()
 
     global chat_window
     chat_window = browser.BrowserWindow(base_url + "/desktop/client/chat.php", True)
@@ -83,12 +83,17 @@ def show_or_hide_main_window():
 
 # The main window's position is saved whenever it is moved or resized, so we
 # restore it when the window is created.
-def show_main_window():
+def init_main_window():
     saved_rectangle = settings.get_setting("MainWindowRectangle")
     if saved_rectangle:
         main_window.set_rectangle(*saved_rectangle)
     main_window.fit_to_desktop()
-    main_window.show()
+
+    tray = settings.get_setting("SystemTray", default=False)
+    minimized = settings.get_setting("MinimizedOnStart", default=False) 
+    
+    if not tray or not minimized:
+        main_window.show()
 
 # The chat window is initially shown adjacent to the main window, bottom
 # aligned on the left (or right if not enough space). If moved or resized, the
