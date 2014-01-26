@@ -16,7 +16,7 @@ def init():
         base_url = base_url_override
 
     global main_window
-    main_window = browser.BrowserWindow(base_url + "/desktop/client/")
+    main_window = browser.BrowserWindow(base_url + "/desktop/client/", False)
     main_window.set_size(212, 640)
     main_window.set_title("Messenger")
     def main_window_moved_or_resized():
@@ -24,11 +24,12 @@ def init():
             "MainWindowRectangle", main_window.get_rectangle())
     event.subscribe(main_window.MOVE_EVENT, main_window_moved_or_resized)
     event.subscribe(main_window.RESIZE_EVENT, main_window_moved_or_resized)
+    event.subscribe(main_window.TRAY_EVENT, show_or_hide_main_window)
     event.subscribe(main_window.CLOSE_EVENT, application.quit)
     show_main_window()
 
     global chat_window
-    chat_window = browser.BrowserWindow(base_url + "/desktop/client/chat.php")
+    chat_window = browser.BrowserWindow(base_url + "/desktop/client/chat.php", True)
     chat_window.set_size(420, 340)
     def chat_window_moved_or_resized():
         settings.set_setting(
@@ -38,7 +39,7 @@ def init():
 
     global toast_window
     toast_window = browser.BrowserWindow(
-        base_url + "/desktop/client/toast.php")
+        base_url + "/desktop/client/toast.php", True)
     toast_window.style_toast()
     # height of one toast -- this will be overridden but just in case
     toast_window.set_size(TOAST_WIDTH, 72)
