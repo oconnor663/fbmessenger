@@ -26,7 +26,7 @@ that users might want to mess with.
 `SystemTray`; set it to `SystemTray = True` to enable system tray or to 
 `SystemTray = False` to disable it.
 
-`MinimizedOnStart`; It is only valid if the with `SystemTray` option set to True.
+`MinimizedOnStart`; it is only valid if the `SystemTray` option set to True.
 Set `MinimizedOnStart = True` if you want to have this app minimized to tray
 on start.
 
