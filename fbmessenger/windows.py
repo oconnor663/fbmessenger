@@ -25,18 +25,19 @@ def init():
             "MainWindowRectangle", main_window.get_rectangle())
     event.subscribe(main_window.MOVE_EVENT, main_window_moved_or_resized)
     event.subscribe(main_window.RESIZE_EVENT, main_window_moved_or_resized)
-    event.subscribe(main_window.TRAY_EVENT, show_or_hide_main_window)
+    event.subscribe(main_window.HIDE_EVENT, show_or_hide_main_window)
     event.subscribe(main_window.CLOSE_EVENT, application.quit)
     init_main_window()
 
     global chat_window
-    chat_window = browser.BrowserWindow(base_url + "/desktop/client/chat.php", True)
+    chat_window = browser.BrowserWindow(base_url + "/desktop/client/chat.php", False)
     chat_window.set_size(420, 340)
     def chat_window_moved_or_resized():
         settings.set_setting(
             "ChatWindowRectangle", chat_window.get_rectangle())
     event.subscribe(chat_window.MOVE_EVENT, chat_window_moved_or_resized)
     event.subscribe(chat_window.RESIZE_EVENT, chat_window_moved_or_resized)
+    event.subscribe(chat_window.HIDE_EVENT, show_or_hide_chat_window)
 
     global toast_window
     toast_window = browser.BrowserWindow(
@@ -72,6 +73,12 @@ def on_sys_tray_activated(reason):
 
 def on_sys_show_hide_activated():
     show_or_hide_main_window()
+
+def show_or_hide_chat_window():
+    if chat_window.is_visible():
+        chat_window.hide()
+    else:
+        chat_window.show()
 
 def show_or_hide_main_window():
     if main_window.is_visible():

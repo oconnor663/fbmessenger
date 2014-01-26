@@ -17,7 +17,7 @@ class BrowserWindow:
 
     def __init__(self, starturl, closable):
         self.ACTIVATE_EVENT = object()
-        self.TRAY_EVENT = object()
+        self.HIDE_EVENT = object()
         self.CLOSE_EVENT = object()
         self.DEACTIVATE_EVENT = object()
         self.MOVE_EVENT = object()
@@ -210,7 +210,7 @@ class MessengerWebView(QtWebKit.QWebView):
             QtWebKit.QWebView.closeEvent(self, event_obj)
             event.inform(self._bw.CLOSE_EVENT)
         else:
-            event.inform(self._bw.TRAY_EVENT)
+            event.inform(self._bw.HIDE_EVENT)
             event_obj.ignore()
 
     def focusInEvent(self, event_obj):
