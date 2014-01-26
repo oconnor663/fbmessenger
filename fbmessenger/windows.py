@@ -16,7 +16,8 @@ def init():
         base_url = base_url_override
 
     global main_window
-    main_window = browser.BrowserWindow(base_url + "/desktop/client/", False)
+    closable_main = not settings.get_setting("SystemTray", default=False)
+    main_window = browser.BrowserWindow(base_url + "/desktop/client/", closable_main)
     main_window.set_size(212, 640)
     main_window.set_title("Messenger")
     def main_window_moved_or_resized():

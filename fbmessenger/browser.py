@@ -206,7 +206,7 @@ class MessengerWebView(QtWebKit.QWebView):
         self._bw = browserwindow
 
     def closeEvent(self, event_obj):
-        if self._bw._closable or not settings.get_setting("SystemTray", default=False):
+        if self._bw._closable:
             QtWebKit.QWebView.closeEvent(self, event_obj)
             event.inform(self._bw.CLOSE_EVENT)
         else:
