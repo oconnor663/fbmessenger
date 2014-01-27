@@ -62,6 +62,11 @@ _default_user_config = '''\
 #
 # To enable system tray icon set SystemTray variable to True
 SystemTray = False
+
+# This option is only valid if the tray icon is allowed. Set it if you want
+# to have the messanger minimized to tray on start:
+#
+MinimizedOnStart = False
 '''
 
 def _read_user_config():
