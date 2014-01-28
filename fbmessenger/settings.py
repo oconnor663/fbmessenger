@@ -60,7 +60,7 @@ _default_user_config = '''\
 #
 # Zoom = 1.2
 #
-# To enable system tray icon set SystemTray variable to True
+# To disable system tray icon, set SystemTray variable to False
 SystemTray = True
 
 # This option is only valid if the tray icon is allowed. Set it if you want
