@@ -23,8 +23,7 @@ that users might want to mess with.
 
 `Zoom`; set a value like `Zoom = 1.2` to make the fonts 20% bigger.
 
-`SystemTray`; set it to `SystemTray = True` to enable system tray or to 
-`SystemTray = False` to disable it.
+`SystemTray`; set it to `SystemTray = False` to disable the system tray.
 
 `MinimizedOnStart`; it is only valid if the `SystemTray` option set to True.
 Set `MinimizedOnStart = True` if you want to have this app minimized to tray

@@ -60,13 +60,14 @@ _default_user_config = '''\
 #
 # Zoom = 1.2
 #
-# To disable system tray icon, set SystemTray variable to False
-SystemTray = True
-
+# To disable system tray icon, set SystemTray variable to False:
+#
+# SystemTray = False
+#
 # This option is only valid if the tray icon is allowed. Set it if you want
 # to have the messanger minimized to tray on start:
 #
-MinimizedOnStart = False
+# MinimizedOnStart = True
 '''
 
 def _read_user_config():

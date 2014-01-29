@@ -16,7 +16,7 @@ def init():
         base_url = base_url_override
 
     global main_window
-    closable_main = not settings.get_setting("SystemTray", default=False)
+    closable_main = not settings.get_setting("SystemTray", default=True)
     main_window = browser.BrowserWindow(base_url + "/desktop/client/", closable_main)
     main_window.set_size(212, 640)
     main_window.set_title("Messenger")
@@ -48,7 +48,7 @@ def init():
     event.subscribe(settings.AUTH_CHANGED_EVENT, toast_window.hide)
 
     # check if system tray should be enabled
-    if settings.get_setting("SystemTray", default=False):
+    if settings.get_setting("SystemTray", default=True):
         create_sys_tray()
 
 def create_sys_tray():
@@ -96,7 +96,7 @@ def init_main_window():
         main_window.set_rectangle(*saved_rectangle)
     main_window.fit_to_desktop()
 
-    tray = settings.get_setting("SystemTray", default=False)
+    tray = settings.get_setting("SystemTray", default=True)
     minimized = settings.get_setting("MinimizedOnStart", default=False)
     
     if not tray or not minimized:
