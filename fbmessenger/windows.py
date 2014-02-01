@@ -84,9 +84,11 @@ def show_or_hide_main_window():
     if main_window.is_visible():
         main_window.hide()
         showHide.setText("Show")
+        settings.set_setting("Minimized", True)
     else:
         main_window.show()
         showHide.setText("Hide")
+        settings.set_setting("Minimized", False)
 
 # The main window's position is saved whenever it is moved or resized, so we
 # restore it when the window is created.
@@ -97,7 +99,7 @@ def init_main_window():
     main_window.fit_to_desktop()
 
     tray = settings.get_setting("SystemTray", default=True)
-    minimized = settings.get_setting("MinimizedOnStart", default=False)
+    minimized = settings.get_setting("Minimized", default=False) or settings.get_setting("MinimizedOnStart", default=False)
     
     if not tray or not minimized:
         main_window.show()

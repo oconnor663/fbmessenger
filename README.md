@@ -26,8 +26,8 @@ that users might want to mess with.
 `SystemTray`; set it to `SystemTray = False` to disable the system tray.
 
 `MinimizedOnStart`; it is only valid if the `SystemTray` option set to True.
-Set `MinimizedOnStart = True` if you want to have this app minimized to tray
-on start.
+Set `MinimizedOnStart = True` if you want force the app to be minimized to tray
+on start (otherwise the app will start according to the last minimized status).
 
 ####Dependencies
 * Python 3
