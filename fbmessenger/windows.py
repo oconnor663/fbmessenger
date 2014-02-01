@@ -77,6 +77,7 @@ def on_sys_show_hide_activated():
 def show_or_hide_chat_window():
     if chat_window.is_visible():
         chat_window.hide()
+        chat_window._on_close()
     else:
         chat_window.show()
 
