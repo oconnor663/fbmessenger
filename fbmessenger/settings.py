@@ -56,17 +56,13 @@ def _save_settings():
 
 _default_user_config = '''\
 # To configure fbmessenger, set Python variables in this file. For example, to
-# make text appear 20% bigger, set the Zoom variable:
-#
+# make text appear 20% bigger, uncomment the following line:
 # Zoom = 1.2
-#
-# To disable system tray icon, set SystemTray variable to False:
-#
+
+# To disable the system tray icon:
 # SystemTray = False
-#
-# This option is only valid if the tray icon is allowed. Set it if you want
-# to have the messanger minimized to tray on start:
-#
+
+# To force the app to always start minimized to the tray:
 # MinimizedOnStart = True
 '''
 

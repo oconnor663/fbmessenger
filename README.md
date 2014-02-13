@@ -19,15 +19,13 @@ instructions. You can also install with `sudo python3 setup.py install`, but
 that makes it hard to uninstall, so prefer to use the packaging scripts.
 
 The configuration file is `~/.fbmessenger/config.py`. There are a few settings
-that users might want to mess with.
+that users might want to mess with:
 
-`Zoom`; set a value like `Zoom = 1.2` to make the fonts 20% bigger.
-
-`SystemTray`; set it to `SystemTray = False` to disable the system tray.
-
-`MinimizedOnStart`; it is only valid if the `SystemTray` option set to True.
-Set `MinimizedOnStart = True` if you want force the app to be minimized to tray
-on start (otherwise the app will start according to the last minimized status).
+* Set values like `Zoom = 1.2` to make the fonts 20% bigger.
+* Set `SystemTray = False` to disable the system tray icon.
+* Normally the app will start minimized to the tray if it was minimized last
+  time it quit. To force it to always start minimized, set `MinimizedOnStart =
+  True`.
 
 ####Dependencies
 * Python 3
