@@ -16,17 +16,17 @@ class BrowserWindow:
 
     def __init__(self, starturl, *, closable=True):
         self.ACTIVATE_EVENT = object()
-        self.HIDE_EVENT = object()
         self.CLOSE_EVENT = object()
         self.DEACTIVATE_EVENT = object()
+        self.HIDE_EVENT = object()
         self.MOVE_EVENT = object()
         self.RESIZE_EVENT = object()
+        self.SHOW_EVENT = object()
         self.WHEEL_EVENT = object()
 
-        self._closable = closable
         self._instances.append(self)
         self._starturl = starturl
-        self._view = MessengerWebView(self)
+        self._view = MessengerWebView(self, closable=closable)
         self._external = None
         self._fade_animation_token = None
         page = self._view.page()
@@ -35,7 +35,8 @@ class BrowserWindow:
         self._frame.setZoomFactor(zoom)
         page.linkClicked.connect(self._on_link_clicked)
         page.setLinkDelegationPolicy(QtWebKit.QWebPage.DelegateAllLinks)
-        event.subscribe(self.CLOSE_EVENT, self._on_close)
+        event.subscribe(self.CLOSE_EVENT, self._on_close_or_hide)
+        event.subscribe(self.HIDE_EVENT, self._on_close_or_hide)
         event.subscribe(self.WHEEL_EVENT, self._on_wheel)
         manager = page.networkAccessManager()
         manager.setCookieJar(_cookie_jar_singleton)
@@ -141,7 +142,7 @@ class BrowserWindow:
         token_url = network.add_access_token(url)
         self._view.load(QtCore.QUrl(token_url))
 
-    def _on_close(self):
+    def _on_close_or_hide(self):
         if self._external:
             self._external.arbiter_inform_local("FbDesktop.windowClosed", None)
 
@@ -200,17 +201,18 @@ class BrowserWindow:
 # QWebView and override these methods. We do as little as possible here,
 # though, for abstraction's sake.
 class MessengerWebView(QtWebKit.QWebView):
-    def __init__(self, browserwindow):
+    def __init__(self, browserwindow, *, closable=True):
         QtWebKit.QWebView.__init__(self)
         self._bw = browserwindow
+        self._closable = closable
 
     def closeEvent(self, event_obj):
-        if self._bw._closable:
+        if self._closable:
             QtWebKit.QWebView.closeEvent(self, event_obj)
             event.inform(self._bw.CLOSE_EVENT)
         else:
-            event.inform(self._bw.HIDE_EVENT)
             event_obj.ignore()
+            self.hide()
 
     def focusInEvent(self, event_obj):
         QtWebKit.QWebView.focusInEvent(self, event_obj)
@@ -220,6 +222,10 @@ class MessengerWebView(QtWebKit.QWebView):
         QtWebKit.QWebView.focusOutEvent(self, event_obj)
         event.inform(self._bw.DEACTIVATE_EVENT)
 
+    def hideEvent(self, event_obj):
+        QtWebKit.QWebView.hideEvent(self, event_obj)
+        event.inform(self._bw.HIDE_EVENT)
+
     def moveEvent(self, event_obj):
         QtWebKit.QWebView.moveEvent(self, event_obj)
         event.inform(self._bw.MOVE_EVENT)
@@ -227,6 +233,10 @@ class MessengerWebView(QtWebKit.QWebView):
     def resizeEvent(self, event_obj):
         QtWebKit.QWebView.resizeEvent(self, event_obj)
         event.inform(self._bw.RESIZE_EVENT)
+
+    def showEvent(self, event_obj):
+        QtWebKit.QWebView.showEvent(self, event_obj)
+        event.inform(self._bw.SHOW_EVENT)
 
     def wheelEvent(self, event_obj):
         QtWebKit.QWebView.wheelEvent(self, event_obj)

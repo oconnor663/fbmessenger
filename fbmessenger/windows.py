@@ -8,6 +8,9 @@ TOAST_WIDTH = 330
 # Used for toast and chat window positioning
 _margin = 10
 
+sys_tray = None
+show_hide = None
+
 def init():
     base_url = "https://www.facebook.com"
     base_url_override = settings.get_setting("BaseUrl")
@@ -26,7 +29,8 @@ def init():
             "MainWindowRectangle", main_window.get_rectangle())
     event.subscribe(main_window.MOVE_EVENT, main_window_moved_or_resized)
     event.subscribe(main_window.RESIZE_EVENT, main_window_moved_or_resized)
-    event.subscribe(main_window.HIDE_EVENT, show_or_hide_main_window)
+    event.subscribe(main_window.SHOW_EVENT, main_window_shown)
+    event.subscribe(main_window.HIDE_EVENT, main_window_hidden)
     event.subscribe(main_window.CLOSE_EVENT, application.quit)
     init_main_window()
 
@@ -39,7 +43,6 @@ def init():
             "ChatWindowRectangle", chat_window.get_rectangle())
     event.subscribe(chat_window.MOVE_EVENT, chat_window_moved_or_resized)
     event.subscribe(chat_window.RESIZE_EVENT, chat_window_moved_or_resized)
-    event.subscribe(chat_window.HIDE_EVENT, show_or_hide_chat_window)
 
     global toast_window
     toast_window = browser.BrowserWindow(
@@ -54,44 +57,45 @@ def init():
         create_sys_tray()
 
 def create_sys_tray():
-    global sysTray
+    global sys_tray
     sysIcon = QtGui.QIcon(application.resource_path("fbmessenger.png"))
-    sysTray = QtGui.QSystemTrayIcon(sysIcon, application.get_qt_application())
-    sysTray.activated.connect(on_sys_tray_activated)
+    sys_tray = QtGui.QSystemTrayIcon(sysIcon, application.get_qt_application())
+    sys_tray.activated.connect(on_sys_tray_activated)
 
     sysTrayMenu = QtGui.QMenu()
 
-    global showHide
-    showHide = sysTrayMenu.addAction("Hide")
-    showHide.triggered.connect(on_sys_show_hide_activated)
+    global show_hide
+    show_hide = sysTrayMenu.addAction("")
+    set_show_hide_text()
+    show_hide.triggered.connect(show_or_hide_main_window)
     quit = sysTrayMenu.addAction("Quit")
     quit.triggered.connect(application.quit)
-    sysTray.setContextMenu(sysTrayMenu)
-    sysTray.setVisible(True)
+    sys_tray.setContextMenu(sysTrayMenu)
+    sys_tray.setVisible(True)
+
+def set_show_hide_text():
+    if not show_hide:
+        return
+    show_hide.setText("Hide" if main_window.is_visible() else "Show")
 
 def on_sys_tray_activated(reason):
-    if reason == QtGui.QSystemTrayIcon.Trigger or reason == QtGui.QSystemTrayIcon.DoubleClick:
+    if (reason == QtGui.QSystemTrayIcon.Trigger or
+            reason == QtGui.QSystemTrayIcon.DoubleClick):
         show_or_hide_main_window()
-
-def on_sys_show_hide_activated():
-    show_or_hide_main_window()
-
-def show_or_hide_chat_window():
-    if chat_window.is_visible():
-        chat_window.hide()
-        chat_window._on_close()
-    else:
-        chat_window.show()
 
 def show_or_hide_main_window():
     if main_window.is_visible():
         main_window.hide()
-        showHide.setText("Show")
-        settings.set_setting("Minimized", True)
     else:
         main_window.show()
-        showHide.setText("Hide")
-        settings.set_setting("Minimized", False)
+
+def main_window_shown():
+    set_show_hide_text()
+    settings.set_setting("Minimized", False)
+
+def main_window_hidden():
+    set_show_hide_text()
+    settings.set_setting("Minimized", True)
 
 # The main window's position is saved whenever it is moved or resized, so we
 # restore it when the window is created.
