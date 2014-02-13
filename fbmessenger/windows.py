@@ -102,7 +102,7 @@ def init_main_window():
     tray = settings.get_setting("SystemTray", default=True)
     minimized = (settings.get_setting("Minimized", default=False) or
         settings.get_setting("MinimizedOnStart", default=False))
-    
+
     if not tray or not minimized:
         main_window.show()
 
