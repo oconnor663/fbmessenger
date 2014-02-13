@@ -16,7 +16,7 @@ def init():
         base_url = base_url_override
 
     global main_window
-    closable_main = not settings.get_setting("SystemTray", default=True)
+    closable_main = not is_system_tray_enabled()
     main_window = browser.BrowserWindow(base_url + "/desktop/client/",
                                         closable=closable_main)
     main_window.set_size(212, 640)
@@ -50,7 +50,7 @@ def init():
     event.subscribe(settings.AUTH_CHANGED_EVENT, toast_window.hide)
 
     # check if system tray should be enabled
-    if settings.get_setting("SystemTray", default=True):
+    if is_system_tray_enabled():
         create_sys_tray()
 
 def create_sys_tray():
@@ -101,11 +101,10 @@ def init_main_window():
         main_window.set_rectangle(*saved_rectangle)
     main_window.fit_to_desktop()
 
-    tray = settings.get_setting("SystemTray", default=True)
-    minimized = (settings.get_setting("Minimized", default=False) or
-        settings.get_setting("MinimizedOnStart", default=False))
+    start_minimized = (settings.get_setting("Minimized", default=False) or
+                       settings.get_setting("MinimizedOnStart", default=False))
 
-    if not tray or not minimized:
+    if not is_system_tray_enabled() or not start_minimized:
         main_window.show()
 
 # The chat window is initially shown adjacent to the main window, bottom
@@ -158,3 +157,8 @@ def show_toast():
     _position_toast()
     toast_window.show()
     _terrible_toast_height_hack()
+
+def is_system_tray_enabled():
+    if not QtGui.QSystemTrayIcon.isSystemTrayAvailable():
+        return False
+    return settings.get_setting("SystemTray", default=True)
