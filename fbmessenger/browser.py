@@ -13,9 +13,8 @@ from . import application
 
 class BrowserWindow:
     _instances = []
-    _closable = False
 
-    def __init__(self, starturl, closable):
+    def __init__(self, starturl, *, closable=True):
         self.ACTIVATE_EVENT = object()
         self.HIDE_EVENT = object()
         self.CLOSE_EVENT = object()

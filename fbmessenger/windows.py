@@ -17,7 +17,8 @@ def init():
 
     global main_window
     closable_main = not settings.get_setting("SystemTray", default=True)
-    main_window = browser.BrowserWindow(base_url + "/desktop/client/", closable_main)
+    main_window = browser.BrowserWindow(base_url + "/desktop/client/",
+                                        closable=closable_main)
     main_window.set_size(212, 640)
     main_window.set_title("Messenger")
     def main_window_moved_or_resized():
@@ -30,7 +31,8 @@ def init():
     init_main_window()
 
     global chat_window
-    chat_window = browser.BrowserWindow(base_url + "/desktop/client/chat.php", False)
+    chat_window = browser.BrowserWindow(base_url + "/desktop/client/chat.php",
+                                        closable=False)
     chat_window.set_size(420, 340)
     def chat_window_moved_or_resized():
         settings.set_setting(
@@ -41,7 +43,7 @@ def init():
 
     global toast_window
     toast_window = browser.BrowserWindow(
-        base_url + "/desktop/client/toast.php", True)
+        base_url + "/desktop/client/toast.php")
     toast_window.style_toast()
     # height of one toast -- this will be overridden but just in case
     toast_window.set_size(TOAST_WIDTH, 72)
