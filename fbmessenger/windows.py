@@ -32,6 +32,10 @@ def init():
     event.subscribe(main_window.SHOW_EVENT, main_window_shown)
     event.subscribe(main_window.HIDE_EVENT, main_window_hidden)
     event.subscribe(main_window.CLOSE_EVENT, application.quit)
+    def main_window_key_press(key):
+        if key == QtCore.Qt.Key_Escape and is_system_tray_enabled():
+            main_window.hide()
+    event.subscribe(main_window.KEY_PRESS_EVENT, main_window_key_press)
     init_main_window()
 
     global chat_window

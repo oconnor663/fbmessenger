@@ -19,6 +19,7 @@ class BrowserWindow:
         self.CLOSE_EVENT = object()
         self.DEACTIVATE_EVENT = object()
         self.HIDE_EVENT = object()
+        self.KEY_PRESS_EVENT = object()
         self.MOVE_EVENT = object()
         self.RESIZE_EVENT = object()
         self.SHOW_EVENT = object()
@@ -225,6 +226,10 @@ class MessengerWebView(QtWebKit.QWebView):
     def hideEvent(self, event_obj):
         QtWebKit.QWebView.hideEvent(self, event_obj)
         event.inform(self._bw.HIDE_EVENT)
+
+    def keyPressEvent(self, event_obj):
+        QtWebKit.QWebView.keyPressEvent(self, event_obj)
+        event.inform(self._bw.KEY_PRESS_EVENT, event_obj.key())
 
     def moveEvent(self, event_obj):
         QtWebKit.QWebView.moveEvent(self, event_obj)
