@@ -1,10 +1,12 @@
 #! /usr/bin/python3
 
-import os
 from setuptools import setup
+import subprocess
 
 with open("packaging/VERSION") as version_file:
     version = version_file.read().strip()
+
+subprocess.call(["peru", "sync"])
 
 setup(
     name="fbmessenger",
@@ -17,8 +19,8 @@ setup(
     packages=['fbmessenger'],
     package_data={'fbmessenger': ['resources/*']},
     data_files=[
-      ('share/applications', ['resources/fbmessenger.desktop']),
-      ('share/pixmaps', ['resources/fbmessenger.png']),
-      ],
+        ('share/applications', ['resources/fbmessenger.desktop']),
+        ('share/pixmaps', ['resources/fbmessenger.png']),
+    ],
     scripts=['bin/fbmessenger'],
 )

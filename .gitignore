@@ -1,2 +1,7 @@
 __pycache__
 *.pyc
+
+.peru
+
+# fetched by peru
+fbmessenger/mosquitto.py
