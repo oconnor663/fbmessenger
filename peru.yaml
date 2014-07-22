@@ -4,5 +4,5 @@ imports:
 hg module mosquitto:
     url: https://bitbucket.org/oojah/mosquitto
     rev: 7e367780e1e52dc24a38617ddf49b2f82302d9a4  # 1.2
-    build: mkdir out && cp lib/python/mosquitto.py out/
-    export: out
+    export: lib/python
+    files: mosquitto.py
