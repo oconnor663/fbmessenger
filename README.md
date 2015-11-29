@@ -1,7 +1,11 @@
 #####As of 13 February 2014 this app is deprecated.#####
-This app depends on old Facebook APIs that aren't going to be around much
-longer.  Thanks to all the folks who've used it, and especially everyone who's
-submitted patches. If a good replacement comes along, I will link to it here.
+This app depends on old Facebook APIs that aren't going to be around
+much longer.  Thanks to all the folks who've used it, and especially
+everyone who's submitted patches. If a good replacement comes along, I
+will link to it here.
+
+Update November 2015: [messenger.com](https://www.messenger.com) works
+well for me as a replacement.
 
 ##Facebook Messenger for Linux (and Mac!)
 ![screenshot](https://github.com/oconnor663/fbmessenger/raw/master/resources/screenshot.png)
