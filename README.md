@@ -11,8 +11,9 @@ well for me as a replacement.
 ![screenshot](https://github.com/oconnor663/fbmessenger/raw/master/resources/screenshot.png)
 
 A PyQt clone of [Facebook Messenger for
-Windows](https://www.facebook.com/about/messenger). It gives you a chat
-sidebar, chat popup windows, and notification toasts outside of the browser.
+Windows](https://web.archive.org/web/20130704182851/https://www.facebook.com/about/messenger).
+It gives you a chat sidebar, chat popup windows, and notification toasts
+outside of the browser.
 
 If you have all the dependencies, you can launch the app straight from this
 repository with `./run.sh`. After you install it, you can launch it with
